@@ -2,17 +2,25 @@ import express from 'express'
 import cors from 'cors'
 import pkg from 'pg'
 import dotenv from 'dotenv'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
 dotenv.config()
 
 const { Pool } = pkg
 const app = express()
 
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
 /* =========================
    CONFIGURACIÓN GENERAL
 ========================= */
 app.use(cors())
 app.use(express.json())
+
+// Servir archivos estáticos del frontend (después de compilar con npm run build)
+app.use(express.static(path.join(__dirname, 'dist')))
 
 
 /* ================================
@@ -374,6 +382,11 @@ app.get('/test', async (req, res) => {
 /* ================================
    SERVIDOR
 ================================ */
+
+// Ruta catch-all para servir el frontend en cualquier ruta
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'))
+})
 
 const PORT = process.env.PORT || 8080
 

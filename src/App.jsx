@@ -17,77 +17,76 @@ function App() {
   const [showCampeonatoMenu, setShowCampeonatoMenu] = useState(false)
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [licencias, setLicencias] = useState([])
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
-  
-  const formatearFecha = (fechaISO) => {
-    if (!fechaISO) return '-'
-    const fecha = fechaISO.split('T')[0]
-    const [año, mes, dia] = fecha.split('-')
-    return `${dia}/${mes}/${año}`
-  }
+const formatearFecha = (fechaISO) => {
+  if (!fechaISO) return '-'
+  const fecha = fechaISO.split('T')[0]
+  const [año, mes, dia] = fecha.split('-')
+  return `${dia}/${mes}/${año}`
+}
 
 useEffect(() => {
-    fetch(`${API_URL}/api/eventos`)
-      .then(res => res.json())
-      .then(data => setEventos(data))
-      .catch(err => console.error(err))
+  fetch(`${API_URL}/api/eventos`)
+    .then(res => res.json())
+    .then(data => setEventos(data))
+    .catch(err => console.error(err))
 
-    fetch(`${API_URL}/api/ganadores`)
-      .then(res => res.json())
-      .then(data => setGanadores(data))
-      .catch(err => console.error(err))
-  }, [])
+  fetch(`${API_URL}/api/ganadores`)
+    .then(res => res.json())
+    .then(data => setGanadores(data))
+    .catch(err => console.error(err))
+}, [])
 
-  useEffect(() => {
-    if (currentView === 'details') {
-      fetchPilotos()
-      const interval = setInterval(fetchPilotos, 5000)
-      return () => clearInterval(interval)
-    }
-    if (currentView === 'estadisticas') {
-      fetchEstadisticas()
-      const interval = setInterval(fetchEstadisticas, 5000)
-      return () => clearInterval(interval)
-    }
-    if (currentView === 'calendario') {
+useEffect(() => {
+  if (currentView === 'details') {
+    fetchPilotos()
+    const interval = setInterval(fetchPilotos, 5000)
+    return () => clearInterval(interval)
+  }
+  if (currentView === 'estadisticas') {
+    fetchEstadisticas()
+    const interval = setInterval(fetchEstadisticas, 5000)
+    return () => clearInterval(interval)
+  }
+  if (currentView === 'calendario') {
+    fetchEventos()
+    fetchGanadores()
+    const interval = setInterval(() => {
       fetchEventos()
       fetchGanadores()
-      const interval = setInterval(() => {
-        fetchEventos()
-        fetchGanadores()
-      }, 5000)
-      return () => clearInterval(interval)
-    }
-    if (currentView === 'campeonato-fabricantes') {
+    }, 5000)
+    return () => clearInterval(interval)
+  }
+  if (currentView === 'campeonato-fabricantes') {
     fetchCampeonatoFabricantes()
     const interval = setInterval(fetchCampeonatoFabricantes, 5000)
     return () => clearInterval(interval)
-    }
-    if (currentView === 'resultados') {
-      fetchResultados()
-      fetchEventos()
-      const interval = setInterval(fetchResultados, 5000)
-      return () => clearInterval(interval)
-    }
-    if (currentView === 'campeonato-equipos') {
+  }
+  if (currentView === 'resultados') {
+    fetchResultados()
+    fetchEventos()
+    const interval = setInterval(fetchResultados, 5000)
+    return () => clearInterval(interval)
+  }
+  if (currentView === 'campeonato-equipos') {
     fetchCampeonatoEquipos()
     const interval = setInterval(fetchCampeonatoEquipos, 5000)
     return () => clearInterval(interval)
-    }
-    if (currentView === 'licencias') {
+  }
+  if (currentView === 'licencias') {
     fetchLicencias()
     const interval = setInterval(fetchLicencias, 5000)
     return () => clearInterval(interval)
-    }
-  }, [currentView])
+  }
+}, [currentView])
 
 const fetchPilotos = async () => {
   try {
     setLoading(true)
     setError(null)
 
-    const res = await fetch(`${API_URL}/pilotos`)
+    const res = await fetch(`${API_URL}/api/pilotos`)
     if (!res.ok) throw new Error('Error al obtener pilotos')
 
     const data = await res.json()
@@ -210,7 +209,7 @@ const fetchLicencias = async () => {
   setLoading(true)
   setError(null)
   try {
-    const response = await fetch(`${API_URL}/licencias`)
+    const response = await fetch(`${API_URL}/api/licencias`)
     if (!response.ok) throw new Error('Error al cargar licencias')
 
     const data = await response.json()
@@ -220,8 +219,8 @@ const fetchLicencias = async () => {
   } finally {
     setLoading(false)
   }
-}
-
+}  
+ 
 // HOME VIEW
   useEffect(() => {
     if (currentView === 'home') {

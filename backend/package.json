@@ -1,14 +1,23 @@
 {
-  "name": "backend-gaming",
+  "name": "nascar-gaming",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "vite",
+    "build": "vite build",
+    "postinstall": "npm run build"
   },
   "dependencies": {
-    "cors": "^2.8.5",
     "express": "^4.18.2",
-    "mssql": "^10.0.1",
-    "pg": "^8.16.3"
+    "cors": "^2.8.5",
+    "pg": "^8.11.0",
+    "dotenv": "^16.0.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.0.0",
+    "vite": "^5.0.0"
   }
 }
