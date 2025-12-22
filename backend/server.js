@@ -19,9 +19,9 @@ const __dirname = path.dirname(__filename)
 app.use(cors())
 app.use(express.json())
 
-// Servir archivos estáticos del frontend (después de compilar con npm run build)
-app.use(express.static(path.join(__dirname, 'dist')))
-
+// Servir archivos estáticos del frontend desde la carpeta dist que está un nivel arriba
+// IMPORTANTE: La carpeta dist está en GAMING/dist, y este archivo está en GAMING/backend/
+app.use('/Gaming', express.static(path.join(__dirname, '..', 'dist')))
 
 /* ================================
    CONEXIÓN POSTGRESQL (RAILWAY)
@@ -384,8 +384,9 @@ app.get('/test', async (req, res) => {
 ================================ */
 
 // Ruta catch-all para servir el frontend en cualquier ruta
+// IMPORTANTE: Esta debe ir AL FINAL después de todas las rutas de API
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'))
+  res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'))
 })
 
 const PORT = process.env.PORT || 8080
