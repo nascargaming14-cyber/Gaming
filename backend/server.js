@@ -21,7 +21,7 @@ app.use(express.json())
 
 // Servir archivos estáticos del frontend desde la carpeta dist que está un nivel arriba
 // IMPORTANTE: La carpeta dist está en GAMING/dist, y este archivo está en GAMING/backend/
-app.use('/Gaming', express.static(path.join(__dirname, '..', 'dist')))
+app.use(express.static(path.join(__dirname, '..', 'dist')))
 
 /* ================================
    CONEXIÓN POSTGRESQL (RAILWAY)
