@@ -59,15 +59,18 @@ app.get('/api/pilotos', async (req, res) => {
 ========================= */
 app.get('/api/eventos', async (req, res) => {
   try {
-    const { rows } = await pool.query(
-      'SELECT * FROM eventoscarrera ORDER BY fecha'
-    )
+    const { rows } = await pool.query(`
+      SELECT *
+      FROM eventoscarrera
+      ORDER BY fecha
+    `)
     res.json(rows)
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: 'Error eventos' })
+  } catch (error) {
+    console.error('Error en /api/eventos:', error)
+    res.status(500).json({ error: 'Error al obtener eventos' })
   }
 })
+
 
 /* =========================
    RESULTADOS
@@ -102,20 +105,21 @@ app.get('/api/resultados', async (req, res) => {
 app.get('/api/ganadores', async (req, res) => {
   try {
     const { rows } = await pool.query(`
-      SELECT 
-        ideventocarrera,
-        MAX(CASE WHEN inicio = 1 THEN piloto END) AS ganador_pole,
-        MAX(CASE WHEN fin = 1 THEN piloto END) AS ganador_carrera
-      FROM resultadoscarrera
-      GROUP BY ideventocarrera
-      ORDER BY ideventocarrera
+      SELECT
+        rc.id_evento_carrera AS "IdEventoCarrera",
+        MAX(CASE WHEN rc.posicion = 1 THEN p.nombre END) AS "GanadorCarrera",
+        MAX(CASE WHEN rc.posicion = 1 THEN p.numero END) AS "NumeroCarrera"
+      FROM resultadoscarrera rc
+      JOIN pilotos p ON p.id_piloto = rc.id_piloto
+      GROUP BY rc.id_evento_carrera
     `)
     res.json(rows)
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: 'Error ganadores' })
+  } catch (error) {
+    console.error('Error en /api/ganadores:', error)
+    res.status(500).json({ error: 'Error al obtener ganadores' })
   }
 })
+
 
 /* =========================
    LICENCIAS
