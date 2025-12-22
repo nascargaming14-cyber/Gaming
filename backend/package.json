@@ -4,13 +4,14 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "start": "node backend/server.js",
-    "railway-build": "npm install && npm run build && cd backend && npm install"
+    "start": "node backend/server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5",
-    "pg": "^8.11.0"
+    "pg": "^8.11.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.0",

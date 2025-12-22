@@ -17,8 +17,7 @@ function App() {
   const [showCampeonatoMenu, setShowCampeonatoMenu] = useState(false)
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [licencias, setLicencias] = useState([])
-const API_URL = import.meta.env.VITE_API_URL || '';
-
+  const API_URL = import.meta.env.VITE_API_URL || '';
 const formatearFecha = (fechaISO) => {
   if (!fechaISO) return '-'
   const fecha = fechaISO.split('T')[0]
@@ -27,12 +26,12 @@ const formatearFecha = (fechaISO) => {
 }
 
 useEffect(() => {
-  fetch(`${API_URL}/api/eventos`)
+  fetch('/api/eventos')
     .then(res => res.json())
     .then(data => setEventos(data))
     .catch(err => console.error(err))
 
-  fetch(`${API_URL}/api/ganadores`)
+  fetch('/api/ganadores')
     .then(res => res.json())
     .then(data => setGanadores(data))
     .catch(err => console.error(err))
@@ -86,7 +85,7 @@ const fetchPilotos = async () => {
     setLoading(true)
     setError(null)
 
-    const res = await fetch(`${API_URL}/api/pilotos`)
+    const res = await fetch('/api/pilotos')
     if (!res.ok) throw new Error('Error al obtener pilotos')
 
     const data = await res.json()
@@ -102,7 +101,7 @@ const fetchCampeonatoFabricantes = async () => {
   setLoading(true)
   setError(null)
   try {
-    const response = await fetch(`${API_URL}/api/campeonato-fabricantes`)
+    const response = await fetch('/api/campeonato-fabricantes')
     if (!response.ok) throw new Error('Error al cargar campeonato de fabricantes')
 
     const data = await response.json()
@@ -118,7 +117,7 @@ const fetchCampeonatoEquipos = async () => {
   setLoading(true)
   setError(null)
   try {
-    const response = await fetch(`${API_URL}/api/campeonato-equipos`)
+    const response = await fetch('/api/campeonato-equipos')
     if (!response.ok) throw new Error('Error al cargar campeonato de equipos')
 
     const data = await response.json()
@@ -134,7 +133,7 @@ const fetchEstadisticas = async () => {
   setLoading(true)
   setError(null)
   try {
-    const response = await fetch(`${API_URL}/api/estadisticas`)
+    const response = await fetch('/api/estadisticas')
     if (!response.ok) throw new Error('Error al cargar estadísticas')
 
     const data = await response.json()
@@ -150,7 +149,7 @@ const fetchEventos = async () => {
   setLoading(true)
   setError(null)
   try {
-    const response = await fetch(`${API_URL}/api/eventos`)
+    const response = await fetch('/api/eventos')
     if (!response.ok) throw new Error('Error al cargar eventos')
 
     const data = await response.json()
@@ -166,7 +165,7 @@ const fetchResultados = async () => {
   setLoading(true)
   setError(null)
   try {
-    const response = await fetch(`${API_URL}/api/resultados`)
+    const response = await fetch('/api/resultados')
     if (!response.ok) throw new Error('Error al cargar resultados')
 
     const data = await response.json()
@@ -180,17 +179,13 @@ const fetchResultados = async () => {
 
 const fetchGanadores = async () => {
   try {
-    const response = await fetch(`${API_URL}/api/ganadores`)
+    const response = await fetch('/api/ganadores')
     if (!response.ok) throw new Error('Error al cargar ganadores')
 
     const data = await response.json()
 
     const ganadoresMap = {}
     data.forEach(g => {
-      if (!ganadoresMap[g.IdEventoCarrera]) {
-        ganadoresMap[g.IdEventoCarrera] = {}
-      }
-
       ganadoresMap[g.IdEventoCarrera] = {
         pole: g.GanadorPole,
         carrera: g.GanadorCarrera,
@@ -209,7 +204,7 @@ const fetchLicencias = async () => {
   setLoading(true)
   setError(null)
   try {
-    const response = await fetch(`${API_URL}/api/licencias`)
+    const response = await fetch('/api/licencias')
     if (!response.ok) throw new Error('Error al cargar licencias')
 
     const data = await response.json()
@@ -219,8 +214,8 @@ const fetchLicencias = async () => {
   } finally {
     setLoading(false)
   }
-}  
- 
+}
+
 // HOME VIEW
   useEffect(() => {
     if (currentView === 'home') {
