@@ -18,6 +18,7 @@ function App() {
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [licencias, setLicencias] = useState([])
   const API_URL = import.meta.env.VITE_API_URL || '';
+
 const formatearFecha = (fechaISO) => {
   if (!fechaISO) return '-'
   const fecha = fechaISO.split('T')[0]
@@ -81,110 +82,175 @@ useEffect(() => {
 }, [currentView])
 
 const fetchPilotos = async () => {
-  try {
-    setLoading(true)
-    setError(null)
+  setLoading(true)
+  setError(null)
 
+  try {
     const res = await fetch('/api/pilotos')
     if (!res.ok) throw new Error('Error al obtener pilotos')
 
     const data = await res.json()
+
+    if (!Array.isArray(data)) {
+      throw new Error('Pilotos no es un arreglo')
+    }
+
     setPilotos(data)
   } catch (err) {
+    console.error(err)
+    setPilotos([])
     setError(err.message)
   } finally {
     setLoading(false)
   }
 }
 
+
 const fetchCampeonatoFabricantes = async () => {
   setLoading(true)
   setError(null)
+
   try {
     const response = await fetch('/api/campeonato-fabricantes')
     if (!response.ok) throw new Error('Error al cargar campeonato de fabricantes')
 
     const data = await response.json()
+
+    if (!Array.isArray(data)) {
+      throw new Error('Campeonato fabricantes no es un arreglo')
+    }
+
     setCampeonatoFabricantes(data)
   } catch (err) {
+    console.error(err)
+    setCampeonatoFabricantes([])
     setError(err.message)
   } finally {
     setLoading(false)
   }
 }
 
+
 const fetchCampeonatoEquipos = async () => {
   setLoading(true)
   setError(null)
+
   try {
     const response = await fetch('/api/campeonato-equipos')
     if (!response.ok) throw new Error('Error al cargar campeonato de equipos')
 
     const data = await response.json()
+
+    if (!Array.isArray(data)) {
+      throw new Error('Campeonato equipos no es un arreglo')
+    }
+
     setCampeonatoEquipos(data)
   } catch (err) {
+    console.error(err)
+    setCampeonatoEquipos([])
     setError(err.message)
   } finally {
     setLoading(false)
   }
 }
 
+
 const fetchEstadisticas = async () => {
   setLoading(true)
   setError(null)
+
   try {
     const response = await fetch('/api/estadisticas')
     if (!response.ok) throw new Error('Error al cargar estadísticas')
 
     const data = await response.json()
+
+    if (!Array.isArray(data)) {
+      throw new Error('Estadísticas no es un arreglo')
+    }
+
     setEstadisticas(data)
   } catch (err) {
+    console.error(err)
+    setEstadisticas([])
     setError(err.message)
   } finally {
     setLoading(false)
   }
 }
+
 
 const fetchEventos = async () => {
   setLoading(true)
   setError(null)
+
   try {
     const response = await fetch('/api/eventos')
-    if (!response.ok) throw new Error('Error al cargar eventos')
+
+    if (!response.ok) {
+      throw new Error('Error del servidor al cargar eventos')
+    }
 
     const data = await response.json()
+
+    // 🔒 VALIDACIÓN CRÍTICA
+    if (!Array.isArray(data)) {
+      throw new Error('Eventos no es un arreglo')
+    }
+
     setEventos(data)
   } catch (err) {
+    console.error(err)
+    setEventos([])       // ← evita pantalla negra
     setError(err.message)
   } finally {
     setLoading(false)
   }
 }
 
+
 const fetchResultados = async () => {
   setLoading(true)
   setError(null)
+
   try {
     const response = await fetch('/api/resultados')
     if (!response.ok) throw new Error('Error al cargar resultados')
 
     const data = await response.json()
+
+    if (!Array.isArray(data)) {
+      throw new Error('Resultados no es un arreglo')
+    }
+
     setResultados(data)
   } catch (err) {
+    console.error(err)
+    setResultados([])
     setError(err.message)
   } finally {
     setLoading(false)
   }
 }
 
+
 const fetchGanadores = async () => {
   try {
     const response = await fetch('/api/ganadores')
-    if (!response.ok) throw new Error('Error al cargar ganadores')
+
+    if (!response.ok) {
+      throw new Error('Error del servidor al cargar ganadores')
+    }
 
     const data = await response.json()
 
+    if (!Array.isArray(data)) {
+      throw new Error('Ganadores no es un arreglo')
+    }
+
     const ganadoresMap = {}
+
     data.forEach(g => {
       ganadoresMap[g.IdEventoCarrera] = {
         pole: g.GanadorPole,
@@ -196,25 +262,36 @@ const fetchGanadores = async () => {
 
     setGanadores(ganadoresMap)
   } catch (err) {
-    console.error('Error fetching ganadores:', err)
+    console.error(err)
+    setGanadores({})
   }
 }
+
 
 const fetchLicencias = async () => {
   setLoading(true)
   setError(null)
+
   try {
     const response = await fetch('/api/licencias')
     if (!response.ok) throw new Error('Error al cargar licencias')
 
     const data = await response.json()
+
+    if (!Array.isArray(data)) {
+      throw new Error('Licencias no es un arreglo')
+    }
+
     setLicencias(data)
   } catch (err) {
+    console.error(err)
+    setLicencias([])
     setError(err.message)
   } finally {
     setLoading(false)
   }
 }
+
 
 // HOME VIEW
   useEffect(() => {
