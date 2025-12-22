@@ -17,7 +17,7 @@ function App() {
   const [showCampeonatoMenu, setShowCampeonatoMenu] = useState(false)
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [licencias, setLicencias] = useState([])
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const formatearFecha = (fechaISO) => {
   if (!fechaISO) return '-'

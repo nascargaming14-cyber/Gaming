@@ -19,14 +19,9 @@ const __dirname = path.dirname(__filename)
 app.use(cors())
 app.use(express.json())
 
-// Servir archivos estáticos del frontend desde la carpeta dist que está un nivel arriba
-// IMPORTANTE: La carpeta dist está en GAMING/dist, y este archivo está en GAMING/backend/
-app.use(express.static(path.join(__dirname, '..', 'dist')))
-
 /* ================================
    CONEXIÓN POSTGRESQL (RAILWAY)
 ================================ */
-
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
@@ -36,6 +31,19 @@ pool.connect()
   .then(() => console.log('✅ Conectado a PostgreSQL (Railway)'))
   .catch(err => console.error('❌ Error PostgreSQL:', err))
 
+/* ================================
+   RUTAS DE API - DEBEN IR PRIMERO
+================================ */
+
+// TEST ENDPOINT
+app.get('/api/test', async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT NOW()')
+    res.json(rows[0])
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
 
 // PILOTOS
 app.get('/api/pilotos', async (req, res) => {
@@ -43,6 +51,18 @@ app.get('/api/pilotos', async (req, res) => {
     const { rows } = await pool.query('SELECT * FROM "Pilotos" ORDER BY "Numero"')
     res.json(rows)
   } catch (err) {
+    console.error('Error en /api/pilotos:', err)
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// EVENTOS
+app.get('/api/eventos', async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM "EventosCarrera" ORDER BY "Fecha"')
+    res.json(rows)
+  } catch (err) {
+    console.error('Error en /api/eventos:', err)
     res.status(500).json({ error: err.message })
   }
 })
@@ -74,23 +94,84 @@ app.get('/api/resultados', async (req, res) => {
     `)
     res.json(rows)
   } catch (err) {
+    console.error('Error en /api/resultados:', err)
     res.status(500).json({ error: err.message })
   }
 })
 
-// EVENTOS
-app.get('/api/eventos', async (req, res) => {
+// ESTADÍSTICAS
+app.get('/api/estadisticas', async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT * FROM "EventosCarrera" ORDER BY "Fecha"')
+    const { rows } = await pool.query(`
+      WITH EstadisticasPiloto AS (
+        SELECT
+          P."Numero" AS "No",
+          CONCAT(P."Nombre", ' ', P."Apellido") AS "Driver",
+          P."MarcaVehiculo" AS "MFR",
+          SUM(
+            PU."Puntos"
+            + COALESCE(PE1."Puntos", 0)
+            + COALESCE(PE2."Puntos", 0)
+          ) AS "BasePoints",
+          SUM(
+            CASE
+              WHEN RC."PP" ~ '^[0-9]+$' THEN CAST(RC."PP" AS INT)
+              ELSE 0
+            END
+          ) AS "PlayoffPoints",
+          COUNT(DISTINCT RC."IdEventoCarrera") AS "Starts",
+          SUM(CASE WHEN RC."Fin" = 1 THEN 1 ELSE 0 END) AS "Wins",
+          SUM(CASE WHEN RC."Fin" BETWEEN 1 AND 5 THEN 1 ELSE 0 END) AS "Top5s",
+          SUM(CASE WHEN RC."Fin" BETWEEN 1 AND 10 THEN 1 ELSE 0 END) AS "Top10s",
+          SUM(CASE WHEN RC."Estado" = 'Accidente' THEN 1 ELSE 0 END) AS "DNFs",
+          SUM(RC."VueltasLideradas") AS "LapsLed",
+          CAST(AVG(RC."Inicio") AS DECIMAL(10,2)) AS "AvgStart",
+          CAST(AVG(RC."Fin") AS DECIMAL(10,2)) AS "AvgFinish"
+        FROM "ResultadosCarrera" RC
+        INNER JOIN "Pilotos" P ON RC."NumeroPiloto" = P."Numero"
+        INNER JOIN "Puntos" PU ON RC."Id_Puntos" = PU."Posicion"
+        LEFT JOIN "Puntos_Etapa" PE1 ON RC."Id_FinalS1" = PE1."Posicion"
+        LEFT JOIN "Puntos_Etapa" PE2 ON RC."Id_FinalS2" = PE2."Posicion"
+        GROUP BY P."Numero", P."Nombre", P."Apellido", P."MarcaVehiculo"
+      ),
+      ClasificacionFinal AS (
+        SELECT
+          *,
+          ("BasePoints" + "PlayoffPoints") AS "TotalPoints",
+          MAX("BasePoints" + "PlayoffPoints") OVER ()
+          - ("BasePoints" + "PlayoffPoints") AS "Behind"
+        FROM EstadisticasPiloto
+      )
+      SELECT
+        ROW_NUMBER() OVER (ORDER BY "TotalPoints" DESC) AS "POS",
+        "No" AS "NO",
+        "Driver",
+        "MFR",
+        "TotalPoints" AS "PointsStage",
+        CASE
+          WHEN "Behind" = 0 THEN 'LIDER'
+          ELSE CONCAT('-', "Behind")
+        END AS "BEHIND",
+        "Starts" AS "STARTS",
+        "Wins" AS "WINS",
+        "Top5s",
+        "Top10s",
+        "DNFs",
+        "LapsLed",
+        "PlayoffPoints",
+        "AvgStart",
+        "AvgFinish"
+      FROM ClasificacionFinal
+      ORDER BY "TotalPoints" DESC
+    `)
     res.json(rows)
   } catch (err) {
+    console.error('Error en /api/estadisticas:', err)
     res.status(500).json({ error: err.message })
   }
 })
 
-/* ======================================================
-   ENDPOINT: CAMPEONATO DE EQUIPOS
-====================================================== */
+// CAMPEONATO EQUIPOS
 app.get('/api/campeonato-equipos', async (req, res) => {
   try {
     const { rows } = await pool.query(`
@@ -123,16 +204,14 @@ app.get('/api/campeonato-equipos', async (req, res) => {
       GROUP BY "Equipo"
       ORDER BY "PuntosTotalesEquipo" DESC
     `)
-
     res.json(rows)
   } catch (err) {
+    console.error('Error en /api/campeonato-equipos:', err)
     res.status(500).json({ error: err.message })
   }
 })
 
-/* ======================================================
-   ENDPOINT: CAMPEONATO DE MARCAS
-====================================================== */
+// CAMPEONATO FABRICANTES
 app.get('/api/campeonato-fabricantes', async (req, res) => {
   try {
     const { rows } = await pool.query(`
@@ -189,83 +268,9 @@ app.get('/api/campeonato-fabricantes', async (req, res) => {
       FROM ClasificacionFinal
       ORDER BY "PuntosTotales" DESC
     `)
-
     res.json(rows)
   } catch (err) {
-    res.status(500).json({ error: err.message })
-  }
-})
-
-/* ======================================================
-   ENDPOINT: CAMPEONATO DE PILOTOS
-====================================================== */
-app.get('/api/estadisticas', async (req, res) => {
-  try {
-    const { rows } = await pool.query(`
-      WITH EstadisticasPiloto AS (
-        SELECT
-          P."Numero" AS "No",
-          CONCAT(P."Nombre", ' ', P."Apellido") AS "Driver",
-          P."MarcaVehiculo" AS "MFR",
-          SUM(
-            PU."Puntos"
-            + COALESCE(PE1."Puntos", 0)
-            + COALESCE(PE2."Puntos", 0)
-          ) AS "BasePoints",
-          SUM(
-            CASE
-              WHEN RC."PP" ~ '^[0-9]+$' THEN CAST(RC."PP" AS INT)
-              ELSE 0
-            END
-          ) AS "PlayoffPoints",
-          COUNT(DISTINCT RC."IdEventoCarrera") AS "Starts",
-          SUM(CASE WHEN RC."Fin" = 1 THEN 1 ELSE 0 END) AS "Wins",
-          SUM(CASE WHEN RC."Fin" BETWEEN 1 AND 5 THEN 1 ELSE 0 END) AS "Top5s",
-          SUM(CASE WHEN RC."Fin" BETWEEN 1 AND 10 THEN 1 ELSE 0 END) AS "Top10s",
-          SUM(CASE WHEN RC."Estado" = 'Accidente' THEN 1 ELSE 0 END) AS "DNFs",
-          SUM(RC."VueltasLideradas") AS "LapsLed",
-          CAST(AVG(RC."Inicio") AS DECIMAL(10,2)) AS "AvgStart",
-          CAST(AVG(RC."Fin") AS DECIMAL(10,2)) AS "AvgFinish"
-        FROM "ResultadosCarrera" RC
-        INNER JOIN "Pilotos" P ON RC."NumeroPiloto" = P."Numero"
-        INNER JOIN "Puntos" PU ON RC."Id_Puntos" = PU."Posicion"
-        LEFT JOIN "Puntos_Etapa" PE1 ON RC."Id_FinalS1" = PE1."Posicion"
-        LEFT JOIN "Puntos_Etapa" PE2 ON RC."Id_FinalS2" = PE2."Posicion"
-        GROUP BY P."Numero", P."Nombre", P."Apellido", P."MarcaVehiculo"
-      ),
-      ClasificacionFinal AS (
-        SELECT
-          *,
-          ("BasePoints" + "PlayoffPoints") AS "TotalPoints",
-          MAX("BasePoints" + "PlayoffPoints") OVER ()
-          - ("BasePoints" + "PlayoffPoints") AS "Behind"
-        FROM EstadisticasPiloto
-      )
-      SELECT
-        ROW_NUMBER() OVER (ORDER BY "TotalPoints" DESC) AS "POS",
-        "No",
-        "Driver",
-        "MFR",
-        "TotalPoints" AS "POINTS (STAGE)",
-        CASE
-          WHEN "Behind" = 0 THEN 'LIDER'
-          ELSE CONCAT('-', "Behind")
-        END AS "BEHIND",
-        "Starts",
-        "Wins",
-        "Top5s" AS "TOP 5s",
-        "Top10s" AS "TOP 10s",
-        "DNFs",
-        "LapsLed" AS "LAPS LED",
-        "PlayoffPoints" AS "PLAYOFF POINTS",
-        "AvgStart" AS "AVG START",
-        "AvgFinish" AS "AVG FINISH"
-      FROM ClasificacionFinal
-      ORDER BY "TotalPoints" DESC
-    `)
-
-    res.json(rows)
-  } catch (err) {
+    console.error('Error en /api/campeonato-fabricantes:', err)
     res.status(500).json({ error: err.message })
   }
 })
@@ -284,11 +289,9 @@ app.get('/api/ganadores', async (req, res) => {
     `)
 
     const data = {}
-
     pole.rows.forEach(p => {
       data[p.IdEventoCarrera] = { ...p }
     })
-
     carrera.rows.forEach(c => {
       data[c.IdEventoCarrera] = {
         ...data[c.IdEventoCarrera],
@@ -298,13 +301,12 @@ app.get('/api/ganadores', async (req, res) => {
 
     res.json(Object.values(data))
   } catch (err) {
+    console.error('Error en /api/ganadores:', err)
     res.status(500).json({ error: err.message })
   }
 })
 
-/* ======================================================
-   ENDPOINT: LICENCIAS
-====================================================== */
+// LICENCIAS
 app.get('/api/licencias', async (req, res) => {
   try {
     const { rows } = await pool.query(`
@@ -359,38 +361,32 @@ app.get('/api/licencias', async (req, res) => {
       FROM CalculoLicencia
       ORDER BY "Numero" ASC
     `)
-
     res.json(rows)
   } catch (err) {
+    console.error('Error en /api/licencias:', err)
     res.status(500).json({ error: err.message })
   }
 })
 
 /* ================================
-   EJEMPLO ENDPOINT
+   ARCHIVOS ESTÁTICOS Y CATCH-ALL
+   IMPORTANTE: DEBEN IR AL FINAL
 ================================ */
 
-app.get('/test', async (req, res) => {
-  try {
-    const { rows } = await pool.query('SELECT NOW()')
-    res.json(rows[0])
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
+// Servir archivos estáticos
+app.use(express.static(path.join(__dirname, '..', 'dist')))
+
+// Catch-all route - DEBE SER LA ÚLTIMA
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'))
 })
 
 /* ================================
    SERVIDOR
 ================================ */
-
-// Ruta catch-all para servir el frontend en cualquier ruta
-// IMPORTANTE: Esta debe ir AL FINAL después de todas las rutas de API
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'))
-})
-
 const PORT = process.env.PORT || 8080
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Backend corriendo en puerto ${PORT}`)
+  console.log(`📊 Base de datos: ${process.env.DATABASE_URL ? 'PostgreSQL conectada' : 'Sin configurar'}`)
 })
