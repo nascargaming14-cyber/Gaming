@@ -373,12 +373,18 @@ app.get('/api/licencias', async (req, res) => {
    IMPORTANTE: DEBEN IR AL FINAL
 ================================ */
 
-// Servir archivos estáticos
-app.use(express.static(path.join(__dirname, '..', 'dist')))
+// Servir archivos estáticos desde la carpeta dist en la raíz del proyecto
+const distPath = path.join(__dirname, '..', 'dist')
+
+console.log('📂 Buscando archivos estáticos en:', distPath)
+
+app.use(express.static(distPath))
 
 // Catch-all route - DEBE SER LA ÚLTIMA
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'))
+  const indexPath = path.join(distPath, 'index.html')
+  console.log('📄 Sirviendo index.html desde:', indexPath)
+  res.sendFile(indexPath)
 })
 
 /* ================================
