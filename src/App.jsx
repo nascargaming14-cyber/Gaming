@@ -17,6 +17,8 @@ function App() {
   const [showCampeonatoMenu, setShowCampeonatoMenu] = useState(false)
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [licencias, setLicencias] = useState([])
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+
   
   const formatearFecha = (fechaISO) => {
     if (!fechaISO) return '-'
@@ -26,12 +28,12 @@ function App() {
   }
 
 useEffect(() => {
-    fetch('http://localhost:5173/api/eventos')
+    fetch(`${API_URL}/api/eventos`)
       .then(res => res.json())
       .then(data => setEventos(data))
       .catch(err => console.error(err))
 
-    fetch('http://localhost:5173/api/ganadores')
+    fetch(`${API_URL}/api/ganadores`)
       .then(res => res.json())
       .then(data => setGanadores(data))
       .catch(err => console.error(err))
@@ -85,7 +87,7 @@ const fetchPilotos = async () => {
     setLoading(true)
     setError(null)
 
-  const res = await fetch('http://localhost:5173/api/pilotos')
+    const res = await fetch(`${API_URL}/pilotos`)
     if (!res.ok) throw new Error('Error al obtener pilotos')
 
     const data = await res.json()
@@ -101,8 +103,9 @@ const fetchCampeonatoFabricantes = async () => {
   setLoading(true)
   setError(null)
   try {
-    const response = await fetch('http://localhost:5173/api/campeonato-fabricantes')
+    const response = await fetch(`${API_URL}/api/campeonato-fabricantes`)
     if (!response.ok) throw new Error('Error al cargar campeonato de fabricantes')
+
     const data = await response.json()
     setCampeonatoFabricantes(data)
   } catch (err) {
@@ -116,8 +119,9 @@ const fetchCampeonatoEquipos = async () => {
   setLoading(true)
   setError(null)
   try {
-    const response = await fetch('http://localhost:5173/api/campeonato-equipos')
+    const response = await fetch(`${API_URL}/api/campeonato-equipos`)
     if (!response.ok) throw new Error('Error al cargar campeonato de equipos')
+
     const data = await response.json()
     setCampeonatoEquipos(data)
   } catch (err) {
@@ -127,62 +131,67 @@ const fetchCampeonatoEquipos = async () => {
   }
 }
 
-  const fetchEstadisticas = async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const response = await fetch('http://localhost:5173/api/estadisticas')
-      if (!response.ok) throw new Error('Error al cargar estadísticas')
-      const data = await response.json()
-      setEstadisticas(data)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
+const fetchEstadisticas = async () => {
+  setLoading(true)
+  setError(null)
+  try {
+    const response = await fetch(`${API_URL}/api/estadisticas`)
+    if (!response.ok) throw new Error('Error al cargar estadísticas')
 
-  const fetchEventos = async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const response = await fetch('http://localhost:5173/api/eventos')
-      if (!response.ok) throw new Error('Error al cargar eventos')
-      const data = await response.json()
-      setEventos(data)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+    const data = await response.json()
+    setEstadisticas(data)
+  } catch (err) {
+    setError(err.message)
+  } finally {
+    setLoading(false)
   }
+}
 
-  const fetchResultados = async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const response = await fetch('http://localhost:5173/api/resultados')
-      if (!response.ok) throw new Error('Error al cargar resultados')
-      const data = await response.json()
-      setResultados(data)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+const fetchEventos = async () => {
+  setLoading(true)
+  setError(null)
+  try {
+    const response = await fetch(`${API_URL}/api/eventos`)
+    if (!response.ok) throw new Error('Error al cargar eventos')
+
+    const data = await response.json()
+    setEventos(data)
+  } catch (err) {
+    setError(err.message)
+  } finally {
+    setLoading(false)
   }
+}
+
+const fetchResultados = async () => {
+  setLoading(true)
+  setError(null)
+  try {
+    const response = await fetch(`${API_URL}/api/resultados`)
+    if (!response.ok) throw new Error('Error al cargar resultados')
+
+    const data = await response.json()
+    setResultados(data)
+  } catch (err) {
+    setError(err.message)
+  } finally {
+    setLoading(false)
+  }
+}
 
 const fetchGanadores = async () => {
   try {
-    const response = await fetch('http://localhost:5173/api/ganadores')
+    const response = await fetch(`${API_URL}/api/ganadores`)
     if (!response.ok) throw new Error('Error al cargar ganadores')
+
     const data = await response.json()
-    
+
     const ganadoresMap = {}
     data.forEach(g => {
       if (!ganadoresMap[g.IdEventoCarrera]) {
         ganadoresMap[g.IdEventoCarrera] = {}
       }
+
       ganadoresMap[g.IdEventoCarrera] = {
         pole: g.GanadorPole,
         carrera: g.GanadorCarrera,
@@ -190,6 +199,7 @@ const fetchGanadores = async () => {
         numeroCarrera: g.NumeroCarrera
       }
     })
+
     setGanadores(ganadoresMap)
   } catch (err) {
     console.error('Error fetching ganadores:', err)
@@ -200,8 +210,9 @@ const fetchLicencias = async () => {
   setLoading(true)
   setError(null)
   try {
-    const response = await fetch('http://localhost:5173/api/licencias')
+    const response = await fetch(`${API_URL}/licencias`)
     if (!response.ok) throw new Error('Error al cargar licencias')
+
     const data = await response.json()
     setLicencias(data)
   } catch (err) {

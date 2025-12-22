@@ -427,7 +427,8 @@ app.get('*', (req, res) => {
 
 /* ========================= */
 
-const PORT = 5173
+const PORT = process.env.PORT || 8080;
+
 app.listen(PORT, () => {
-  console.log(`🚀 Backend activo en http://localhost:${PORT}`)
-})
+  console.log(`🚀 Backend activo en puerto ${PORT}`);
+});
