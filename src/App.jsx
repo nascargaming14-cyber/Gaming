@@ -231,7 +231,7 @@ function PilotosView() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-24">
+      <div className="flex justify-center items-center py-20">
         <span className="text-gray-400 text-lg">Cargando pilotos...</span>
       </div>
     );
@@ -239,75 +239,74 @@ function PilotosView() {
 
   return (
     <div className="max-w-7xl mx-auto px-4">
-      {/* HERO */}
-      <div className="mb-10 text-center">
-        <h1 className="text-4xl font-extrabold tracking-wide mb-2">
-          PILOTOS NASCAR GAMING SERIES
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white">
+          🏁 Pilotos NASCAR Gaming Series – Lista de Entradas – Tiempo Completo
         </h1>
-        <p className="text-gray-400 text-sm">
-          Lista oficial de pilotos registrados en la temporada actual
-        </p>
+
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="mt-3 sm:mt-0 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-4 py-2 rounded"
+        >
+          ← Regresar al inicio
+        </button>
       </div>
 
-      {/* GRID DE PILOTOS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {pilotos.map((p, idx) => (
-          <div
-            key={idx}
-            className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-lg border border-gray-700 hover:border-blue-500 transition-all"
-          >
-            <div className="p-5">
-              {/* NUMERO */}
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-3xl font-extrabold text-blue-400">
-                  #{p.numero}
-                </span>
-                <span className="text-xs bg-gray-700 px-3 py-1 rounded-full text-gray-300">
-                  {p.marcavehiculo}
-                </span>
-              </div>
+      {/* CONTENEDOR TABLA */}
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm text-gray-800">
+            <thead className="bg-gray-100 border-b">
+              <tr>
+                <th className="px-4 py-3 text-left font-bold">NÚMERO</th>
+                <th className="px-4 py-3 text-left font-bold">NOMBRE</th>
+                <th className="px-4 py-3 text-left font-bold">APELLIDO</th>
+                <th className="px-4 py-3 text-left font-bold">FECHA NACIMIENTO</th>
+                <th className="px-4 py-3 text-left font-bold">LUGAR ORIGEN</th>
+                <th className="px-4 py-3 text-left font-bold">JEFE EQUIPO</th>
+                <th className="px-4 py-3 text-left font-bold">EQUIPO</th>
+                <th className="px-4 py-3 text-left font-bold">CATEGORÍA</th>
+                <th className="px-4 py-3 text-left font-bold">MARCA VEHÍCULO</th>
+              </tr>
+            </thead>
 
-              {/* NOMBRE */}
-              <h2 className="text-xl font-bold text-white leading-tight">
-                {p.nombre} {p.apellido}
-              </h2>
-
-              <p className="text-sm text-gray-400 mt-1">
-                {p.lugarorigen}
-              </p>
-
-              {/* INFO */}
-              <div className="mt-4 space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Equipo</span>
-                  <span className="text-white">{p.equipo}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Jefe</span>
-                  <span className="text-white">{p.jefeequipo}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Categoría</span>
-                  <span className="text-white">{p.categoria}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+            <tbody>
+              {pilotos.map((p, idx) => (
+                <tr
+                  key={idx}
+                  className="border-b hover:bg-gray-50 transition"
+                >
+                  <td className="px-4 py-3">
+                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white font-bold">
+                      {p.numero}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">{p.nombre}</td>
+                  <td className="px-4 py-3">{p.apellido}</td>
+                  <td className="px-4 py-3">
+                    {new Date(p.fechanacimiento).toLocaleDateString('es-ES')}
+                  </td>
+                  <td className="px-4 py-3">{p.lugarorigen}</td>
+                  <td className="px-4 py-3">{p.jefeequipo}</td>
+                  <td className="px-4 py-3">{p.equipo}</td>
+                  <td className="px-4 py-3">{p.categoria}</td>
+                  <td className="px-4 py-3 font-semibold">{p.marcavehiculo}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* FOOTER */}
-      <div className="mt-16 border-t border-gray-700 pt-6 text-center text-xs text-gray-500">
-        <p>
-          NASCAR® Gaming Series • Datos oficiales de pilotos • Temporada actual
-        </p>
-        <p className="mt-1">
-          © 2026 NASCAR Gaming Digital Media
-        </p>
+      <div className="mt-6 text-center text-xs text-gray-400">
+        © 2026 NASCAR Gaming Series • Datos oficiales de pilotos
       </div>
     </div>
   );
 }
+
 
 
 /* =======================
