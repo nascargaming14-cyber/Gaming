@@ -44,15 +44,28 @@ app.get('/api/test', async (req, res) => {
 ========================= */
 app.get('/api/pilotos', async (req, res) => {
   try {
-    const { rows } = await pool.query(
-      'SELECT * FROM pilotos ORDER BY numero'
-    )
+    const { rows } = await pool.query(`
+      SELECT 
+        numero,
+        nombre,
+        apellido,
+        fechanacimiento,
+        lugarorigen,
+        jefeequipo,
+        equipo,
+        categoria,
+        marcavehiculo
+      FROM pilotos
+      ORDER BY numero ASC
+    `)
+
     res.json(rows)
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: 'Error pilotos' })
+  } catch (error) {
+    console.error('Error en /api/pilotos:', error)
+    res.status(500).json({ error: 'Error al obtener pilotos' })
   }
 })
+
 
 /* =========================
    EVENTOS

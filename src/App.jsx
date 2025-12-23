@@ -217,29 +217,96 @@ function ResultadosView() {
 ======================= */
 function PilotosView() {
   const [pilotos, setPilotos] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     fetch('/api/pilotos')
       .then(res => res.json())
-      .then(setPilotos)
-      .catch(() => setPilotos([]));
+      .then(data => {
+        setPilotos(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setPilotos([]);
+        setLoading(false);
+      });
   }, []);
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('es-MX', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-gray-400">Cargando pilotos...</div>
+      </div>
+    );
+  }
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">PILOTOS</h2>
-      <div className="bg-gray-800 rounded-lg p-4">
-        {pilotos.length === 0 ? (
-          <p className="text-gray-400 text-sm">No hay pilotos disponibles</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {pilotos.map(p => (
-              <div key={p.id} className="bg-gray-700 rounded p-3">
-                <div className="text-base font-bold">{p.nombre}</div>
-              </div>
-            ))}
-          </div>
-        )}
+      <h2 className="text-2xl font-bold mb-4">PILOTOS DE LA NASCAR GAMING SERIES</h2>
+      
+      <div className="bg-gray-800 rounded-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-gray-900 text-white uppercase text-xs">
+              <tr>
+                <th className="px-4 py-3 font-bold">NÚMERO</th>
+                <th className="px-4 py-3 font-bold">NOMBRE</th>
+                <th className="px-4 py-3 font-bold">APELLIDO</th>
+                <th className="px-4 py-3 font-bold">FECHA NACIMIENTO</th>
+                <th className="px-4 py-3 font-bold">LUGAR ORIGEN</th>
+                <th className="px-4 py-3 font-bold">JEFE EQUIPO</th>
+                <th className="px-4 py-3 font-bold">EQUIPO</th>
+                <th className="px-4 py-3 font-bold">CATEGORÍA</th>
+                <th className="px-4 py-3 font-bold">MARCA VEHÍCULO</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pilotos.length === 0 ? (
+                <tr>
+                  <td colSpan="9" className="px-4 py-8 text-center text-gray-400">
+                    No hay pilotos disponibles
+                  </td>
+                </tr>
+              ) : (
+                pilotos.map((p, idx) => (
+                  <tr 
+                    key={p.idpiloto || idx} 
+                    className="border-b border-gray-700 hover:bg-gray-750 transition-colors"
+                  >
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-xs">
+                        {p.numero}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-white">{p.nombre}</td>
+                    <td className="px-4 py-3 text-white">{p.apellido}</td>
+                    <td className="px-4 py-3 text-gray-300">{formatDate(p.fechanacimiento)}</td>
+                    <td className="px-4 py-3 text-gray-300">{p.lugarorigen}</td>
+                    <td className="px-4 py-3 text-gray-300">{p.jefeequipo}</td>
+                    <td className="px-4 py-3 text-gray-300">{p.equipo}</td>
+                    <td className="px-4 py-3 text-gray-300">{p.categoria}</td>
+                    <td className="px-4 py-3 text-gray-300">{p.marcavehiculo}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div className="mt-4 text-gray-400 text-xs">
+        Total de pilotos: <span className="font-bold text-white">{pilotos.length}</span>
       </div>
     </div>
   );
