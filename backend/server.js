@@ -141,6 +141,73 @@ app.get('/api/campeonato/pilotos', async (req, res) => {
   }
 });
 
+/* =========================
+   CAMPEONATO FABRICANTES
+========================= */
+app.get('/api/campeonato/fabricantes', async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      WITH MejorPilotoPorMarca AS (
+        SELECT
+          RC.IdEventoCarrera,
+          P.MarcaVehiculo,
+          RC.Fin,
+          PU.Puntos,
+          RC.Estado,
+          ROW_NUMBER() OVER (
+            PARTITION BY RC.IdEventoCarrera, P.MarcaVehiculo
+            ORDER BY RC.Fin ASC
+          ) AS RankingMarca
+        FROM ResultadosCarrera RC
+        INNER JOIN Pilotos P ON RC.NumeroPiloto = P.Numero
+        INNER JOIN Puntos PU ON RC.Id_Puntos = PU.Posicion
+      ),
+      PuntosPorMarca AS (
+        SELECT
+          MarcaVehiculo,
+          SUM(
+            CASE
+              WHEN Estado = 'Accidente' THEN Puntos - 25
+              ELSE Puntos
+            END
+          ) AS PuntosTotales,
+          SUM(
+            CASE
+              WHEN Fin = 1 THEN 1
+              ELSE 0
+            END
+          ) AS Victorias
+        FROM MejorPilotoPorMarca
+        WHERE RankingMarca = 1
+        GROUP BY MarcaVehiculo
+      ),
+      ClasificacionFinal AS (
+        SELECT
+          MarcaVehiculo,
+          PuntosTotales,
+          Victorias,
+          MAX(PuntosTotales) OVER () - PuntosTotales AS Detras
+        FROM PuntosPorMarca
+      )
+      SELECT
+        ROW_NUMBER() OVER (ORDER BY PuntosTotales DESC) AS pos,
+        MarcaVehiculo AS manufacturer,
+        PuntosTotales AS points,
+        CASE
+          WHEN Detras = 0 THEN 'LIDER'
+          ELSE CONCAT('-', Detras)
+        END AS behind,
+        Victorias AS wins
+      FROM ClasificacionFinal
+      ORDER BY PuntosTotales DESC;
+    `);
+
+    res.json(rows);
+  } catch (error) {
+    console.error('Error campeonato fabricantes:', error);
+    res.status(500).json({ error: 'Error campeonato fabricantes' });
+  }
+});
 
 
 /* =========================

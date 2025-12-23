@@ -412,6 +412,84 @@ function CampeonatoPilotosTable() {
   );
 }
 
+/* ======================================================
+   TABLA CAMPEONATO FABRICANTES
+====================================================== */
+function CampeonatoFabricantesTable() {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/campeonato/fabricantes')
+      .then(res => res.json())
+      .then(rows => {
+        setData(rows);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <span className="text-gray-400 text-lg">
+          Cargando clasificación de fabricantes...
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm text-gray-800">
+          <thead className="bg-gray-100 border-b">
+            <tr>
+              <th className="px-4 py-3 text-center">POS</th>
+              <th className="px-4 py-3 text-left">MANUFACTURER</th>
+              <th className="px-4 py-3 text-center">POINTS</th>
+              <th className="px-4 py-3 text-center">BEHIND</th>
+              <th className="px-4 py-3 text-center">WINS</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {data.map((f, index) => (
+              <tr
+                key={index}
+                className={`border-b ${
+                  index === 0
+                    ? 'bg-yellow-100 font-bold'
+                    : 'hover:bg-gray-50'
+                }`}
+              >
+                <td className="px-4 py-3 text-center">{f.pos}</td>
+                <td className="px-4 py-3 text-left font-semibold">{f.manufacturer}</td>
+                <td className="px-4 py-3 text-center font-bold text-blue-600">
+                  {f.points}
+                </td>
+                <td
+                  className={`px-4 py-3 text-center font-bold ${
+                    f.behind === 'LIDER'
+                      ? 'text-green-600'
+                      : 'text-red-600'
+                  }`}
+                >
+                  {f.behind}
+                </td>
+                <td className="px-4 py-3 text-center text-green-600 font-bold">
+                  {f.wins}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+
 /* ================================
    CAMPEONATO VIEW (PRINCIPAL)
 ================================ */
@@ -479,12 +557,16 @@ function CampeonatoView() {
           Clasificación de equipos (pendiente de implementación).
         </div>
       )}
+      {/* CONTENIDO */}
+      {subView === 'pilotos' && <CampeonatoPilotosTable />}
 
-      {subView === 'fabricantes' && (
+      {subView === 'equipos' && (
         <div className="text-gray-400 text-sm">
-          Clasificación de fabricantes (pendiente de implementación).
+          Clasificación de equipos (pendiente de implementación).
         </div>
       )}
+
+      {subView === 'fabricantes' && <CampeonatoFabricantesTable />}
     </div>
   );
 }
