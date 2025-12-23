@@ -181,6 +181,86 @@ function HomeView() {
   );
 }
 
+/* ================================
+   CAMPEONATO VIEW (PRINCIPAL)
+================================ */
+export default function CampeonatoView() {
+  const [subView, setSubView] = useState('pilotos');
+
+  return (
+    <div className="max-w-7xl mx-auto px-4">
+
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+        <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+          📊 Clasificación NASCAR Gaming Series
+        </h1>
+
+        <button
+          onClick={() => window.location.href = '/'}
+          className="mt-3 sm:mt-0 bg-gray-700 hover:bg-gray-600 text-white text-sm font-semibold px-4 py-2 rounded"
+        >
+          ← Regresar al inicio
+        </button>
+      </div>
+
+      {/* SUBMENU */}
+      <div className="flex gap-2 mb-6">
+        <button
+          onClick={() => setSubView('pilotos')}
+          className={`px-4 py-2 rounded font-semibold text-sm ${
+            subView === 'pilotos'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+          }`}
+        >
+          Pilotos
+        </button>
+
+        <button
+          onClick={() => setSubView('equipos')}
+          className={`px-4 py-2 rounded font-semibold text-sm ${
+            subView === 'equipos'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+          }`}
+        >
+          Equipos
+        </button>
+
+        <button
+          onClick={() => setSubView('fabricantes')}
+          className={`px-4 py-2 rounded font-semibold text-sm ${
+            subView === 'fabricantes'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+          }`}
+        >
+          Fabricantes
+        </button>
+      </div>
+
+      {/* CONTENIDO */}
+      {subView === 'pilotos' && <CampeonatoPilotosTable />}
+
+      {subView === 'equipos' && (
+        <div className="text-gray-400 text-sm">
+          Clasificación de equipos (pendiente de implementación).
+        </div>
+      )}
+
+      {subView === 'fabricantes' && (
+        <div className="text-gray-400 text-sm">
+          Clasificación de fabricantes (pendiente de implementación).
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+
+
 /* =======================
    RESULTADOS VIEW
 ======================= */
@@ -312,63 +392,106 @@ function PilotosView() {
 /* =======================
    CAMPEONATO VIEW
 ======================= */
-function CampeonatoView({ subView, setSubView }) {
-  return (
-    <div>
-      {/* Submenu de Campeonato */}
-      <div className="mb-4 max-w-xs">
-        <button
-          onClick={() => setSubView('pilotos')}
-          className={`block w-full text-left px-4 py-2 mb-2 rounded font-bold text-sm transition-colors ${
-            subView === 'pilotos'
-              ? 'bg-gray-700 text-white'
-              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-          }`}
-        >
-          🏁 Campeonato de Pilotos
-        </button>
-        <button
-          onClick={() => setSubView('equipos')}
-          className={`block w-full text-left px-4 py-2 mb-2 rounded font-bold text-sm transition-colors ${
-            subView === 'equipos'
-              ? 'bg-gray-700 text-white'
-              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-          }`}
-        >
-          🏁 Campeonato de Equipos
-        </button>
-        <button
-          onClick={() => setSubView('fabricantes')}
-          className={`block w-full text-left px-4 py-2 rounded font-bold text-sm transition-colors ${
-            subView === 'fabricantes'
-              ? 'bg-gray-700 text-white'
-              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-          }`}
-        >
-          🏭 Campeonato de Fabricantes
-        </button>
-      </div>
+/* ======================================================
+   TABLA CAMPEONATO PILOTOS
+====================================================== */
+function CampeonatoPilotosTable() {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-      {/* Contenido según subView */}
-      <div className="bg-gray-800 rounded-lg p-4">
-        {subView === 'pilotos' && (
-          <div>
-            <h2 className="text-2xl font-bold mb-3">Campeonato de Pilotos</h2>
-            <p className="text-gray-400 text-sm">Tabla de clasificación de pilotos...</p>
-          </div>
-        )}
-        {subView === 'equipos' && (
-          <div>
-            <h2 className="text-2xl font-bold mb-3">Campeonato de Equipos</h2>
-            <p className="text-gray-400 text-sm">Tabla de clasificación de equipos...</p>
-          </div>
-        )}
-        {subView === 'fabricantes' && (
-          <div>
-            <h2 className="text-2xl font-bold mb-3">Campeonato de Fabricantes</h2>
-            <p className="text-gray-400 text-sm">Tabla de clasificación de fabricantes...</p>
-          </div>
-        )}
+  useEffect(() => {
+    fetch('/api/campeonato/pilotos')
+      .then(res => res.json())
+      .then(rows => {
+        setData(rows);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <span className="text-gray-400 text-lg">
+          Cargando clasificación...
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm text-gray-800">
+          <thead className="bg-gray-100 border-b">
+            <tr>
+              <th className="px-3 py-3">POS</th>
+              <th className="px-3 py-3">NO</th>
+              <th className="px-3 py-3 text-left">DRIVER</th>
+              <th className="px-3 py-3">MFR</th>
+              <th className="px-3 py-3">POINTS (STAGE)</th>
+              <th className="px-3 py-3">BEHIND</th>
+              <th className="px-3 py-3">STARTS</th>
+              <th className="px-3 py-3">WINS</th>
+              <th className="px-3 py-3">TOP 5s</th>
+              <th className="px-3 py-3">TOP 10s</th>
+              <th className="px-3 py-3">DNFs</th>
+              <th className="px-3 py-3">LAPS LED</th>
+              <th className="px-3 py-3">PLAYOFF POINTS</th>
+              <th className="px-3 py-3">AVG START</th>
+              <th className="px-3 py-3">AVG FINISH</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {data.map((p, index) => (
+              <tr
+                key={index}
+                className={`border-b ${
+                  index === 0
+                    ? 'bg-yellow-100 font-bold'
+                    : 'hover:bg-gray-50'
+                }`}
+              >
+                <td className="px-3 py-3">{p.pos}</td>
+                <td className="px-3 py-3">{p.no}</td>
+                <td className="px-3 py-3 text-left">{p.driver}</td>
+                <td className="px-3 py-3">{p.mfr}</td>
+                <td className="px-3 py-3 font-semibold">
+                  {p.totalpoints}
+                </td>
+                <td
+                  className={`px-3 py-3 font-bold ${
+                    p.behind === 'LIDER'
+                      ? 'text-green-600'
+                      : 'text-red-600'
+                  }`}
+                >
+                  {p.behind}
+                </td>
+                <td className="px-3 py-3">{p.starts}</td>
+                <td className="px-3 py-3 text-green-600 font-bold">
+                  {p.wins}
+                </td>
+                <td className="px-3 py-3">{p.top5s}</td>
+                <td className="px-3 py-3">{p.top10s}</td>
+                <td className="px-3 py-3 text-red-600">
+                  {p.dnfs}
+                </td>
+                <td className="px-3 py-3">{p.lapsled}</td>
+                <td className="px-3 py-3 font-bold">
+                  {p.playoffpoints}
+                </td>
+                <td className="px-3 py-3 text-purple-600">
+                  {p.avgstart}
+                </td>
+                <td className="px-3 py-3 text-purple-600">
+                  {p.avgfinish}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

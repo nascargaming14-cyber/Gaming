@@ -66,6 +66,82 @@ app.get('/api/pilotos', async (req, res) => {
   }
 })
 
+/* =========================
+   CAMPEONATO PILOTOS
+========================= */
+app.get('/api/campeonato/pilotos', async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      WITH EstadisticasPiloto AS (
+        SELECT
+          P.Numero AS No,
+          CONCAT(P.Nombre, ' ', P.Apellido) AS Driver,
+          P.MarcaVehiculo AS MFR,
+          SUM(
+            PU.Puntos
+            + COALESCE(PE1.Puntos, 0)
+            + COALESCE(PE2.Puntos, 0)
+          ) AS BasePoints,
+          SUM(
+            CASE
+              WHEN RC.PP ~ '^[0-9]+$' THEN CAST(RC.PP AS INT)
+              ELSE 0
+            END
+          ) AS PlayoffPoints,
+          COUNT(DISTINCT RC.IdEventoCarrera) AS Starts,
+          SUM(CASE WHEN RC.Fin = 1 THEN 1 ELSE 0 END) AS Wins,
+          SUM(CASE WHEN RC.Fin BETWEEN 1 AND 5 THEN 1 ELSE 0 END) AS Top5s,
+          SUM(CASE WHEN RC.Fin BETWEEN 1 AND 10 THEN 1 ELSE 0 END) AS Top10s,
+          SUM(CASE WHEN RC.Estado = 'Accidente' THEN 1 ELSE 0 END) AS DNFs,
+          SUM(RC.VueltasLideradas) AS LapsLed,
+          CAST(AVG(RC.Inicio) AS DECIMAL(10,2)) AS AvgStart,
+          CAST(AVG(RC.Fin) AS DECIMAL(10,2)) AS AvgFinish
+        FROM ResultadosCarrera RC
+        INNER JOIN Pilotos P ON RC.NumeroPiloto = P.Numero
+        INNER JOIN Puntos PU ON RC.Id_Puntos = PU.Posicion
+        LEFT JOIN Puntos_Etapa PE1 ON RC.Id_FinalS1 = PE1.Posicion
+        LEFT JOIN Puntos_Etapa PE2 ON RC.Id_FinalS2 = PE2.Posicion
+        GROUP BY P.Numero, P.Nombre, P.Apellido, P.MarcaVehiculo
+      ),
+      ClasificacionFinal AS (
+        SELECT
+          *,
+          (BasePoints + PlayoffPoints) AS TotalPoints,
+          MAX(BasePoints + PlayoffPoints) OVER ()
+            - (BasePoints + PlayoffPoints) AS Behind
+        FROM EstadisticasPiloto
+      )
+      SELECT
+        ROW_NUMBER() OVER (ORDER BY TotalPoints DESC) AS pos,
+        No,
+        Driver,
+        MFR,
+        TotalPoints,
+        CASE
+          WHEN Behind = 0 THEN 'LIDER'
+          ELSE CONCAT('-', Behind)
+        END AS Behind,
+        Starts,
+        Wins,
+        Top5s,
+        Top10s,
+        DNFs,
+        LapsLed,
+        PlayoffPoints,
+        AvgStart,
+        AvgFinish
+      FROM ClasificacionFinal
+      ORDER BY TotalPoints DESC;
+    `);
+
+    res.json(rows);
+  } catch (error) {
+    console.error('Error campeonato pilotos:', error);
+    res.status(500).json({ error: 'Error campeonato pilotos' });
+  }
+});
+
+
 
 /* =========================
    EVENTOS
