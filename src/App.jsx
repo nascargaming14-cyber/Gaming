@@ -6,8 +6,16 @@ import { useState, useEffect } from 'react';
 function HomeView() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  const [timezone, setTimezone] = useState('America/Mexico_City');
+  const [timezone, setTimezone] = useState('Mexico');
   const [nextRace, setNextRace] = useState(null);
+
+  const timezones = {
+    'Mexico': { offset: -6, display: 'México (GMT-6)' },
+    'CostaRica': { offset: -6, display: 'Costa Rica (GMT-6)' },
+    'Salvador': { offset: -6, display: 'El Salvador (GMT-6)' },
+    'Colombia': { offset: -5, display: 'Colombia (GMT-5)' },
+    'Argentina': { offset: -3, display: 'Argentina (GMT-3)' }
+  };
 
   // Obtener la próxima carrera desde la API
   useEffect(() => {
@@ -20,7 +28,6 @@ function HomeView() {
       })
       .catch(err => {
         console.error('Error al cargar próxima carrera:', err);
-        // Datos de respaldo en caso de error
         setNextRace({
           nombreevento: 'Cook Out Clash at Daytona Beach',
           estadio: 'Daytona Beach and Road Course',
@@ -76,7 +83,7 @@ function HomeView() {
   };
 
   const formatDate = (date) => {
-    return date.toLocaleDateString('es-MX', { 
+    return date.toLocaleDateString('es-ES', { 
       weekday: 'long', 
       day: 'numeric', 
       month: 'long', 
@@ -95,92 +102,79 @@ function HomeView() {
 
   if (!nextRace) {
     return (
-      <div className="max-w-6xl mx-auto text-center">
+      <div className="text-center py-12">
         <div className="text-gray-400">Cargando información de la próxima carrera...</div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div>
       {/* Header con sponsor */}
-      <div className="text-center mb-8">
-        <h1 className="text-5xl font-bold tracking-wider mb-2">NASCAR GAMING SERIES</h1>
-        <p className="text-gray-400 text-sm">Sponsored By Alpina</p>
+      <div className="text-left mb-4">
+        <h1 className="text-4xl font-bold mb-1">NASCAR GAMING SERIES</h1>
+        <p className="text-gray-400 text-xs">Sponsored By Alpina</p>
       </div>
 
-      {/* Reloj actual */}
-      <div className="bg-gray-800 border-2 border-red-600 rounded-lg p-6 mb-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <div className="text-red-500 text-5xl font-bold font-mono">
-              {formatTime(currentTime)}
-            </div>
-            <div className="text-gray-400 text-sm mt-2">
-              {formatDate(currentTime)}
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="text-gray-400 text-sm mb-2">Zona Horaria:</p>
-            <select 
-              value={timezone}
-              onChange={(e) => setTimezone(e.target.value)}
-              className="bg-gray-900 text-white border border-red-600 rounded px-3 py-2 text-sm"
-            >
-              <option value="America/Mexico_City">México (GMT-6)</option>
-              <option value="America/New_York">New York (GMT-5)</option>
-              <option value="Europe/London">London (GMT+0)</option>
-            </select>
-          </div>
+      {/* Reloj y Zona Horaria en línea */}
+      <div className="mb-2">
+        <div className="text-white text-lg font-bold mb-1">
+          {formatTime(currentTime)}
         </div>
+        <div className="text-gray-400 text-xs mb-2">
+          {formatDate(currentTime)}
+        </div>
+        <div className="text-xs text-gray-400 mb-1">Zona Horaria:</div>
+        <select 
+          value={timezone}
+          onChange={(e) => setTimezone(e.target.value)}
+          className="bg-gray-800 text-white border border-gray-700 rounded px-2 py-1 text-xs"
+        >
+          <option value="Mexico">{timezones.Mexico.display}</option>
+          <option value="CostaRica">{timezones.CostaRica.display}</option>
+          <option value="Salvador">{timezones.Salvador.display}</option>
+          <option value="Colombia">{timezones.Colombia.display}</option>
+          <option value="Argentina">{timezones.Argentina.display}</option>
+        </select>
       </div>
 
       {/* Próxima carrera */}
-      <div className="bg-gray-800 border-2 border-yellow-500 rounded-lg p-6">
-        <h2 className="text-yellow-500 text-2xl font-bold mb-6 flex items-center gap-2">
+      <div className="mb-4">
+        <h2 className="text-white text-base font-bold mb-2">
           🏁 PRÓXIMA CARRERA
         </h2>
         
-        {/* Countdown */}
-        <div className="bg-gray-900 rounded-lg p-8 mb-6">
-          <div className="grid grid-cols-4 gap-4 text-center">
-            <div>
-              <div className="text-yellow-500 text-5xl font-bold">{countdown.days.toString().padStart(2, '0')}</div>
-              <div className="text-gray-400 text-xs mt-2">DÍAS</div>
-            </div>
-            <div>
-              <div className="text-yellow-500 text-5xl font-bold">{countdown.hours.toString().padStart(2, '0')}</div>
-              <div className="text-gray-400 text-xs mt-2">HORAS</div>
-            </div>
-            <div>
-              <div className="text-yellow-500 text-5xl font-bold">{countdown.minutes.toString().padStart(2, '0')}</div>
-              <div className="text-gray-400 text-xs mt-2">MINUTOS</div>
-            </div>
-            <div>
-              <div className="text-yellow-500 text-5xl font-bold">{countdown.seconds.toString().padStart(2, '0')}</div>
-              <div className="text-gray-400 text-xs mt-2">SEGUNDOS</div>
-            </div>
-          </div>
+        {/* Countdown compacto */}
+        <div className="mb-3">
+          <div className="text-white text-sm mb-1">{countdown.days}</div>
+          <div className="text-gray-500 text-xs mb-2">DÍAS</div>
+          
+          <div className="text-white text-sm mb-1">{countdown.hours.toString().padStart(2, '0')}</div>
+          <div className="text-gray-500 text-xs mb-2">HORAS</div>
+          
+          <div className="text-white text-sm mb-1">{countdown.minutes.toString().padStart(2, '0')}</div>
+          <div className="text-gray-500 text-xs mb-2">MINUTOS</div>
+          
+          <div className="text-white text-sm mb-1">{countdown.seconds.toString().padStart(2, '0')}</div>
+          <div className="text-gray-500 text-xs">SEGUNDOS</div>
         </div>
 
         {/* Detalles de la carrera */}
-        <div className="flex justify-between items-start">
-          <div>
-            <h3 className="text-white text-xl font-bold mb-3">{nextRace.nombreevento}</h3>
-            <div className="text-pink-500 mb-2">📍 {nextRace.estadio}</div>
-            <div className="text-gray-400 text-sm">{nextRace.ciudad}, {nextRace.estado}</div>
+        <div>
+          <h3 className="text-white text-base font-bold mb-2">{nextRace.nombreevento}</h3>
+          <div className="text-pink-400 text-xs mb-1">
+            📍 {nextRace.estadio}
           </div>
-          <div className="text-right">
-            <div className="text-yellow-500 mb-2">📅 {formatRaceDate(nextRace.fecha)}</div>
-            <div className="text-gray-300 mb-2">🕐 {nextRace.hora.substring(0, 5)} {nextRace.zonahoraria}</div>
-            <div className="text-gray-400 text-sm">🏁 {nextRace.numerovueltas} vueltas • {nextRace.distanciamillas} millas</div>
-          </div>
+          <div className="text-gray-400 text-xs mb-2">{nextRace.ciudad}, {nextRace.estado}</div>
+          <div className="text-blue-400 text-xs mb-1">📅 {formatRaceDate(nextRace.fecha)}</div>
+          <div className="text-gray-300 text-xs mb-1">🕐 {nextRace.hora.substring(0, 5)} {nextRace.zonahoraria}</div>
+          <div className="text-gray-400 text-xs">🏁 {nextRace.numerovueltas} vueltas • {nextRace.distanciamillas} millas</div>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="mt-8 text-center text-gray-500 text-xs">
-        <p className="mb-2">NASCAR® y sus marcas son marcas comerciales de la Asociación Nacional de Carreras de Autos de Serie, LLC. Todas las demás marcas comerciales son propiedad de sus respectivos dueños.</p>
+      <div className="text-gray-500 text-xs leading-relaxed">
+        <p className="mb-1">NASCAR® y sus marcas son marcas comerciales de la Asociación Nacional de Carreras de Autos de Serie, LLC. Todas las demás marcas comerciales son propiedad de sus respectivos dueños.</p>
         <p>Copyright © 2026 NASCAR Gaming Digital Media, LLC. Todos los derechos reservados.</p>
       </div>
     </div>
@@ -201,14 +195,14 @@ function ResultadosView() {
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <h2 className="text-3xl font-bold mb-6">RESULTADOS</h2>
-      <div className="bg-gray-800 rounded-lg p-6">
+    <div>
+      <h2 className="text-2xl font-bold mb-4">RESULTADOS</h2>
+      <div className="bg-gray-800 rounded-lg p-4">
         {data.length === 0 ? (
-          <p className="text-gray-400">No hay resultados disponibles</p>
+          <p className="text-gray-400 text-sm">No hay resultados disponibles</p>
         ) : (
           data.map(r => (
-            <div key={r.id} className="border-b border-gray-700 py-3">
+            <div key={r.id} className="border-b border-gray-700 py-2 text-sm">
               {r.descripcion}
             </div>
           ))
@@ -232,16 +226,16 @@ function PilotosView() {
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <h2 className="text-3xl font-bold mb-6">PILOTOS</h2>
-      <div className="bg-gray-800 rounded-lg p-6">
+    <div>
+      <h2 className="text-2xl font-bold mb-4">PILOTOS</h2>
+      <div className="bg-gray-800 rounded-lg p-4">
         {pilotos.length === 0 ? (
-          <p className="text-gray-400">No hay pilotos disponibles</p>
+          <p className="text-gray-400 text-sm">No hay pilotos disponibles</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {pilotos.map(p => (
-              <div key={p.id} className="bg-gray-700 rounded-lg p-4">
-                <div className="text-xl font-bold">{p.nombre}</div>
+              <div key={p.id} className="bg-gray-700 rounded p-3">
+                <div className="text-base font-bold">{p.nombre}</div>
               </div>
             ))}
           </div>
@@ -256,14 +250,14 @@ function PilotosView() {
 ======================= */
 function CampeonatoView({ subView, setSubView }) {
   return (
-    <div className="max-w-6xl mx-auto">
+    <div>
       {/* Submenu de Campeonato */}
-      <div className="mb-6">
+      <div className="mb-4 max-w-xs">
         <button
           onClick={() => setSubView('pilotos')}
-          className={`block w-full text-left px-6 py-4 mb-2 rounded-lg font-bold transition-colors ${
+          className={`block w-full text-left px-4 py-2 mb-2 rounded font-bold text-sm transition-colors ${
             subView === 'pilotos'
-              ? 'bg-gray-700 text-white border-l-4 border-blue-500'
+              ? 'bg-gray-700 text-white'
               : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
           }`}
         >
@@ -271,9 +265,9 @@ function CampeonatoView({ subView, setSubView }) {
         </button>
         <button
           onClick={() => setSubView('equipos')}
-          className={`block w-full text-left px-6 py-4 mb-2 rounded-lg font-bold transition-colors ${
+          className={`block w-full text-left px-4 py-2 mb-2 rounded font-bold text-sm transition-colors ${
             subView === 'equipos'
-              ? 'bg-gray-700 text-white border-l-4 border-blue-500'
+              ? 'bg-gray-700 text-white'
               : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
           }`}
         >
@@ -281,9 +275,9 @@ function CampeonatoView({ subView, setSubView }) {
         </button>
         <button
           onClick={() => setSubView('fabricantes')}
-          className={`block w-full text-left px-6 py-4 rounded-lg font-bold transition-colors ${
+          className={`block w-full text-left px-4 py-2 rounded font-bold text-sm transition-colors ${
             subView === 'fabricantes'
-              ? 'bg-gray-700 text-white border-l-4 border-blue-500'
+              ? 'bg-gray-700 text-white'
               : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
           }`}
         >
@@ -292,23 +286,23 @@ function CampeonatoView({ subView, setSubView }) {
       </div>
 
       {/* Contenido según subView */}
-      <div className="bg-gray-800 rounded-lg p-6">
+      <div className="bg-gray-800 rounded-lg p-4">
         {subView === 'pilotos' && (
           <div>
-            <h2 className="text-3xl font-bold mb-4">Campeonato de Pilotos</h2>
-            <p className="text-gray-400">Tabla de clasificación de pilotos...</p>
+            <h2 className="text-2xl font-bold mb-3">Campeonato de Pilotos</h2>
+            <p className="text-gray-400 text-sm">Tabla de clasificación de pilotos...</p>
           </div>
         )}
         {subView === 'equipos' && (
           <div>
-            <h2 className="text-3xl font-bold mb-4">Campeonato de Equipos</h2>
-            <p className="text-gray-400">Tabla de clasificación de equipos...</p>
+            <h2 className="text-2xl font-bold mb-3">Campeonato de Equipos</h2>
+            <p className="text-gray-400 text-sm">Tabla de clasificación de equipos...</p>
           </div>
         )}
         {subView === 'fabricantes' && (
           <div>
-            <h2 className="text-3xl font-bold mb-4">Campeonato de Fabricantes</h2>
-            <p className="text-gray-400">Tabla de clasificación de fabricantes...</p>
+            <h2 className="text-2xl font-bold mb-3">Campeonato de Fabricantes</h2>
+            <p className="text-gray-400 text-sm">Tabla de clasificación de fabricantes...</p>
           </div>
         )}
       </div>
@@ -330,14 +324,14 @@ function CalendarioView() {
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <h2 className="text-3xl font-bold mb-6">CALENDARIO</h2>
-      <div className="bg-gray-800 rounded-lg p-6">
+    <div>
+      <h2 className="text-2xl font-bold mb-4">CALENDARIO</h2>
+      <div className="bg-gray-800 rounded-lg p-4">
         {eventos.length === 0 ? (
-          <p className="text-gray-400">No hay eventos programados</p>
+          <p className="text-gray-400 text-sm">No hay eventos programados</p>
         ) : (
           eventos.map(e => (
-            <div key={e.id} className="border-b border-gray-700 py-3">
+            <div key={e.id} className="border-b border-gray-700 py-2 text-sm">
               {e.nombre} - {e.fecha}
             </div>
           ))
@@ -352,13 +346,13 @@ function CalendarioView() {
 ======================= */
 function ReglamentoView() {
   return (
-    <div className="max-w-6xl mx-auto">
-      <h2 className="text-3xl font-bold mb-6">REGLAMENTO</h2>
-      <div className="bg-gray-800 rounded-lg p-6">
-        <p className="text-gray-300 mb-4">
+    <div>
+      <h2 className="text-2xl font-bold mb-4">REGLAMENTO</h2>
+      <div className="bg-gray-800 rounded-lg p-4">
+        <p className="text-gray-300 mb-3 text-sm">
           Reglamento oficial de NASCAR Gaming Series
         </p>
-        <div className="text-gray-400 space-y-2">
+        <div className="text-gray-400 space-y-1 text-xs">
           <p>• Normas de conducta en pista</p>
           <p>• Sistema de puntuación</p>
           <p>• Penalizaciones</p>
@@ -397,51 +391,49 @@ export default function App() {
   };
 
   return (
-    <div className="bg-black text-white min-h-screen">
+    <div className="bg-gray-900 text-white min-h-screen">
       {/* NAVBAR SUPERIOR */}
-      <nav className="bg-gray-900 border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-center gap-1">
-            <button 
-              onClick={() => setCurrentView('home')}
-              className={`px-8 py-4 font-bold text-sm tracking-wider transition-colors ${
-                currentView === 'home' 
-                  ? 'bg-gray-800 text-white border-b-2 border-blue-500' 
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
-              }`}
-            >
-              HOME
-            </button>
-            <button 
-              onClick={() => setCurrentView('resultados')}
-              className={`px-8 py-4 font-bold text-sm tracking-wider transition-colors ${
-                currentView === 'resultados' 
-                  ? 'bg-gray-800 text-white border-b-2 border-blue-500' 
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
-              }`}
-            >
-              RESULTADOS
-            </button>
-            <button 
-              onClick={() => setCurrentView('pilotos')}
-              className={`px-8 py-4 font-bold text-sm tracking-wider transition-colors ${
-                currentView === 'pilotos' 
-                  ? 'bg-gray-800 text-white border-b-2 border-blue-500' 
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
-              }`}
-            >
-              PILOTOS
-            </button>
-          </div>
+      <nav className="bg-gray-800 border-b border-gray-700 px-4 py-2">
+        <div className="flex items-center gap-6">
+          <button 
+            onClick={() => setCurrentView('home')}
+            className={`px-3 py-1 font-bold text-xs transition-colors ${
+              currentView === 'home' 
+                ? 'text-white underline' 
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            HOME
+          </button>
+          <button 
+            onClick={() => setCurrentView('resultados')}
+            className={`px-3 py-1 font-bold text-xs transition-colors ${
+              currentView === 'resultados' 
+                ? 'text-white underline' 
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            RESULTADOS
+          </button>
+          <button 
+            onClick={() => setCurrentView('pilotos')}
+            className={`px-3 py-1 font-bold text-xs transition-colors ${
+              currentView === 'pilotos' 
+                ? 'text-white underline' 
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            PILOTOS
+          </button>
         </div>
       </nav>
 
       {/* BOTONES DE ACCIÓN PRINCIPALES */}
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="px-4 py-3 border-b border-gray-800">
+        <div className="flex flex-wrap gap-2">
           <button 
             onClick={() => setCurrentView('pilotos')}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg"
+            className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded text-xs transition-colors"
           >
             🏁 PILOTOS
           </button>
@@ -452,19 +444,19 @@ export default function App() {
                 setCurrentView('campeonato');
                 setCampeonatoOpen(!campeonatoOpen);
               }}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg"
+              className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded text-xs transition-colors"
             >
               🏆 CAMPEONATO ▼
             </button>
             
             {campeonatoOpen && currentView === 'campeonato' && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-gray-800 rounded-lg shadow-xl border border-gray-700 overflow-hidden z-10">
+              <div className="absolute top-full left-0 mt-1 bg-gray-800 rounded shadow-lg border border-gray-700 overflow-hidden z-10 min-w-max">
                 <button
                   onClick={() => {
                     setCampeonatoSubView('pilotos');
                     setCampeonatoOpen(false);
                   }}
-                  className="block w-full text-left px-4 py-3 text-white hover:bg-gray-700 transition-colors border-b border-gray-700"
+                  className="block w-full text-left px-3 py-2 text-white hover:bg-gray-700 transition-colors border-b border-gray-700 text-xs"
                 >
                   🏁 Campeonato de Pilotos
                 </button>
@@ -473,7 +465,7 @@ export default function App() {
                     setCampeonatoSubView('equipos');
                     setCampeonatoOpen(false);
                   }}
-                  className="block w-full text-left px-4 py-3 text-white hover:bg-gray-700 transition-colors border-b border-gray-700"
+                  className="block w-full text-left px-3 py-2 text-white hover:bg-gray-700 transition-colors border-b border-gray-700 text-xs"
                 >
                   🏁 Campeonato de Equipos
                 </button>
@@ -482,7 +474,7 @@ export default function App() {
                     setCampeonatoSubView('fabricantes');
                     setCampeonatoOpen(false);
                   }}
-                  className="block w-full text-left px-4 py-3 text-white hover:bg-gray-700 transition-colors"
+                  className="block w-full text-left px-3 py-2 text-white hover:bg-gray-700 transition-colors text-xs"
                 >
                   🏭 Campeonato de Fabricantes
                 </button>
@@ -492,13 +484,13 @@ export default function App() {
           
           <button 
             onClick={() => setCurrentView('calendario')}
-            className="bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg"
+            className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded text-xs transition-colors"
           >
             📅 CALENDARIO
           </button>
           <button 
             onClick={() => setCurrentView('reglamento')}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg"
+            className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded text-xs transition-colors"
           >
             📋 REGLAMENTO
           </button>
@@ -506,7 +498,7 @@ export default function App() {
       </div>
 
       {/* CONTENIDO PRINCIPAL */}
-      <div className="px-4 pb-8">
+      <div className="p-4">
         {renderView()}
       </div>
     </div>
