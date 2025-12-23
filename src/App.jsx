@@ -560,14 +560,6 @@ function CampeonatoView() {
           Clasificación de equipos (pendiente de implementación).
         </div>
       )}
-      {/* CONTENIDO */}
-      {subView === 'pilotos' && <CampeonatoPilotosTable />}
-
-      {subView === 'equipos' && (
-        <div className="text-gray-400 text-sm">
-          Clasificación de equipos (pendiente de implementación).
-        </div>
-      )}
 
       {subView === 'fabricantes' && <CampeonatoFabricantesTable />}
     </div>
