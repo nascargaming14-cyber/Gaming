@@ -177,14 +177,24 @@ function App() {
     }
   }
 
+// Este return principal maneja todas las vistas
   return (
-    <div>
-      {loading && <p>Cargando...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <h1>Gaming App</h1>
-    </div>
-  )
-
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/resultados" element={<Resultados />} />
+        <Route path="/campeonato-fabricantes" element={<CampeonatoFabricantes />} />
+        <Route path="/campeonato-equipos" element={<CampeonatoEquipos />} />
+        <Route path="/calendario" element={<Calendario />} />
+        <Route path="/reglamento" element={<Reglamento />} />
+        <Route path="/estadisticas" element={<Estadisticas />} />
+        <Route path="/descargas" element={<Descargas />} />
+        <Route path="/licencias" element={<Licencias />} />
+        <Route path="/pilotos" element={<Pilotos />} />
+      </Routes>
+    </Router>
+  );
+}
 
 // HOME VIEW
   useEffect(() => {
@@ -2315,7 +2325,5 @@ return (
     </footer>
   </div>
 )
-
-}
 
 export default App
