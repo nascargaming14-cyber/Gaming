@@ -673,19 +673,199 @@ function CalendarioView() {
    REGLAMENTO VIEW
 ======================= */
 function ReglamentoView() {
+  const [seccionActiva, setSeccionActiva] = useState('grupo');
+
+  const secciones = {
+    grupo: {
+      titulo: 'GRUPO',
+      contenido: [
+        '1. No se permiten publicaciones o comentarios racistas hacia otros miembros.',
+        '2. Cualquier publicación o comentario de insultos, spam o peleas, será eliminado y se le limitará a una la cantidad de publicaciones y comentarios que puede hacer cada 24 horas.',
+        '3. La publicación de otras Ligas de nr2003 serán eliminadas y el miembro autor de la publicación, se le limitará a una la cantidad de publicaciones y comentarios que puede hacer cada 24 horas.'
+      ]
+    },
+    discord: {
+      titulo: 'DISCORD',
+      contenido: [
+        '1. El uso del Discord es obligatorio.',
+        '2. Durante prácticas y happy hour está permitido hablar libremente.',
+        '3. Está prohibido hablar durante la sesión de clasificación. No acatar esta regla te hará iniciar la carrera desde el carril de Pits.',
+        '4. Durante la carrera y bajo bandera verde está prohibido hablar a menos que sea para avisar una entrada al carril de pits, rotura de motor, un accidente o una queja.',
+        '5. Durante el transcurso de la carrera, solo se permitirá hablar bajo el estado de bandera amarilla (Se recomienda NO hablar al salir del carril de pits, para poder escuchar a los spotters).',
+        '6. Está prohibido insultar, denigrar, gritar u ofender a otro piloto ya sea por burla ofensiva o desquite personal a causa de un accidente.',
+        '7. Al finalizar la carrera, habrá media hora para revisar accidentes pendientes o sin reclamar.'
+      ]
+    },
+    server: {
+      titulo: 'SERVER',
+      contenido: [
+        '1. El chat del servidor solo será utilizado para quienes no cuentan con un micrófono.',
+        '2. La sesión de prácticas tendrá una duración de 25 minutos.',
+        '3. Si alguien es visto interfiriendo o saboteando las prácticas, será penalizado con una bandera negra, impidiéndole salir a pista hasta la siguiente sesión.',
+        '4. Si un piloto cuenta con más de 400 de Ping o un cualv menor a 49, se le dará aviso para ir al fondo del grupo. No acatar este aviso se sanciona con una bandera negra.',
+        '5. Se recomienda usar la sesión de Happy Hour para practicar la entrada al carril de pits y practicar la parada en su caja de pits.'
+      ]
+    },
+    mecanicas: {
+      titulo: 'MECÁNICAS',
+      contenido: [
+        'ATENCIÓN: Al no cumplir cualquiera de las siguientes reglas, un administrador te colocará una bandera negra, la cual debes cumplir en estado de carrera bajo bandera verde. También se dará una penalización de -3 vueltas en el export en caso de que el incidente sea revisado a penas al finalizar la carrera o no te hagas penalizar de la forma en la que te lo solicite un administrador en el momento.',
+        '',
+        '1. Contaremos con un reinicio al iniciar la carrera, solo si ocurre un accidente antes de que el líder termine la vuelta 5.',
+        '2. No contaremos con Overtime.',
+        '3. En óvalos se hará uso de banderas amarillas automáticas del juego, pero las banderas amarillas serán recortadas en la medida de lo posible por los administradores por medio de un comando específico.',
+        '4. En circuitos NO se hará uso de las banderas amarillas automáticas del juego, pero los administradoras las activarán de forma manual por medio de un comando específico, si hay un accidente que involucre 3 autos o más en pista.',
+        '5. Al salir una bandera amarilla, las posiciones se congelan automáticamente en caso de terminar etapa o carrera.',
+        '6. Usaremos 2 etapas (bajo bandera verde) cuya vuelta está especificada en el calendario en todas las pistas.',
+        '6.1. Ahora todos los Stages acabarán bajo bandera verde tomando las siguientes medidas:',
+        '6.1.1. Si a falta de 5 o menos vueltas para acabar una etapa sale una bandera amarilla, y esta impide que la etapa termine bajo bandera verde, la vuelta final del Stage será extendida hasta el reinicio dando la vuelta de reinicio como la última vuelta del Stage.',
+        '6.1.2. Si sale una bandera amarilla en la última vuelta de una etapa y fue por generar un accidente innecesario serás penalizado.',
+        '6.1.3. Los primeros 10 serán los ganadores de las etapas. 1=5pts | 2=4pts | 3=3pts | 4=3pts | 5=2pts | 6=2pts | 7=2pts | 8=1pts | 9=1pts | 10= 0.5pts.',
+        '6.1.4. En la carrera final de temporada, se hará uso de la suma de puntos de etapa.',
+        '7. Se utilizará la suma de puntos similar al sistema actual de Nascar.',
+        '8. De forma obligatoria todos los pilotos deben dar un aviso para entrar a los pits en la misma vuelta, y debe dar el aviso mínimo antes finalizar el recorrido de la recta posterior en óvalos o antes de que falten 1-2 curvas para la entrada a pits en circuitos.',
+        '9. Ahora es obligatorio dar aviso de que vas al carril de pits por medio del chat, así tengas micrófono.',
+        '10. Si sale una bandera amarilla faltando 5 vueltas para el final (3 en circuitos) se congelarán las posiciones de acuerdo cuando salió la amarilla.',
+        '11. Esta prohibido bloquear de forma reiterada en pista hasta que falten 2 vueltas para el final. Sin embargo, aun faltando 2 vueltas para el final, está prohibido realizar bloqueos peligrosos y/o que puedan provocar un accidente.'
+      ]
+    },
+    banderas: {
+      titulo: 'BANDERAS NEGRAS',
+      contenido: [
+        '1. Para pedir que un administrador le quite una bandera negra, debe escribir en el texto del juego "#*tu numero*bl@ck flag".',
+        '2. Puedes solicitar que te quiten una bandera negra si otro piloto se queda a la hora un reinicio de carrera.',
+        '3. Puedes solicitar que te quiten una bandera negra si después de un accidente tu auto cruza una zona de penalización.',
+        '4. Si has sido penalizado con "eoll" y quieres volver a ingresar al carril de pits, debes esperar a ser rebasado. De no cumplir esta regla, no se removerá la bandera negra.',
+        '5. Las banderas negras removidas por los administradores serán revisadas al final de la carrera.',
+        '6. Esconder un falso pedido de remoción de bandera negra o "BF" u ocultar el motivo real del motivo de la bandera negra para sacar una ventaja, se castiga con una penalización de -3 vueltas en el export y no podrá volver a solicitar una remoción de bandera negra sea cual sea el motivo de esta o a no ser que esta sea generada intencionalmente por otro piloto para afectar al piloto con la sanción, hasta el final de temporada.'
+      ]
+    },
+    accidentes: {
+      titulo: 'ACCIDENTES',
+      contenido: [
+        '1. Si estás seguro de haber causado un accidente, debes reclamarlo como tuyo enviando al chat la letra A y tu número. EJ: A# (se recomienda enviarlo 2 veces seguidas).',
+        '2. Si causas un accidente bajo bandera amarilla, se suma tu cuenta de accidentes causados para ser llamado a parquear tu auto y debes reclamarlo enviando al chat la letra A y tu número. EJ: A#.',
+        '3. Si bajo bandera amarilla, perdiste el control de tu auto, pero no afectaste a ningún otro piloto ni cancelaste un reinicio de carrera, el accidente NO se suma a tu cuenta de accidentes para ser llamado a parquear tu auto, pero puede que afecte de forma negativa tu licencia.',
+        '4. Si bajo bandera verde, perdiste el control de tu auto, pero no afectaste a ningún otro piloto, ni causaste una bandera amarilla, el accidente NO se suma a tu cuenta de accidentes para ser llamado a parquear tu auto, pero puede que afecte de forma negativa tu licencia.',
+        '5. Si causas la pérdida del control del auto a otro piloto y no se genera la bandera amarilla, debes reclamar el accidente como tuyo con la letra A y tu número en el chat y debes hacer un paso por el carril de pits en estado de carrera bajo bandera verde.',
+        '6. Si causaste un accidente que genere una bandera amarilla, debes entrar al carril de pits, y exceder el límite de velocidad de +3 MPH. EJ: Si el límite son 45 MPH, debes pasar por el carril de pits a 48 MPH.',
+        '7. Si no estás seguro de si el accidente fue culpa tuya tienes 2 opciones. Entrar al carril de pits y hacerte penalizar, o no entrar. PERO, de ser hallado culpable del accidente y no haber entrado al carril de pits a hacerse penalizar, serás penalizado con -3 vueltas en el export.',
+        '8. Si ninguno de los involucrados sabe de quién fue el accidente, se recomienda que los involucrados se hagan penalizar en pits, y al final de carrera, se hará una revisión de los accidentes sin reclamar.',
+        '9. Si causas 1(C), 2(B) o 3(A) accidentes (dependiendo de tu licencia A, B o C), serás parqueado.',
+        '10. IMPORTANTE -> Cualquier choque, o maniobra intencional, derivado de un accidente previo, será penalizado siendo expulsado de la carrera y suspendido de todas las categorías por una fecha, quedando bajo probatoria el resto de la temporada.',
+        '11. Si un conductor es visto y reportado teniendo una conducción peligrosa en la que afecte de forma reiterada a varios pilotos aun cuando este conductor no logre causar un accidente, será llamado a estacionar su auto y se le dará la licencia C.',
+        '12. Dar informes falsos sobre conducción peligrosa, da sanción de -3 vueltas en la exportación y suspensión de 1 fecha.',
+        '12.1. Ten en cuenta que, si un piloto te empuja, accidenta o te arruina la carrera, serán los administradores quienes apliquen una penalización. No te arruines a ti mismo cobrando con otro accidente.',
+        '13. Si alguien te ha causado problemas que impliquen daños en tu auto, debes reclamarlo inmediatamente a un Administrador.',
+        '14. Si te encuentras a una distancia considerable de un accidente, en la que incluso usando el ABS puedas frenar con tiempo de sobra, y en cambio decides intentar esquivar el accidente de una forma peligrosa o sin siquiera frenar tu velocidad, serás penalizado con -3 vueltas en el export final. (así esquives o no el accidente).',
+        '15. Si un auto queda estacionado, estancado, enganchado o atrapado después de un accidente, debe retirarlo de inmediato ya sea llamando a la grúa o retirándose.'
+      ]
+    },
+    wave: {
+      titulo: 'WAVE AROUND & LUCKY DOG',
+      contenido: [
+        '1. Los que deseen tomar el Wave around, deben quedarse en pista y esperar que todos los líderes entren al carril de pits. Si un líder de competencia decide no ingresar al carril de pits, debes ingresar al carril de pits para partir al fondo del grupo.',
+        '2. Para tomar el Lucky Dog, debes estar primero de los pilotos con una vuelta perdida, debes ingresar al carril de pits junto con los líderes, exceder el límite de velocidad en uno de los sectores del carril de pits e ir al fondo de la parrilla antes de que la carrera se reinicie.',
+        '2.1. No se otorgará el Lucky Dog a falta de 2 vuelta o menos para el final.',
+        '3. Ningún auto con una vuelta perdida debe quedar entre los líderes al momento de un reinicio. No acatar esta regla se penaliza con una bandera negra la cual se debe cumplir bajo bandera verde.',
+        '4. Todos los autos que estén -1 Lap (vuelta) o más, están obligados a partir últimos, se les va hacer un eoll.',
+        '5. Si en carrera hay de 3 autos o menos con vuelta perdida a la hora de un reinicio, estos deberán entrar en la primera vuelta al carril de pits junto con los líderes, pero deben exceder el límite de velocidad en no más de +3 MPH por encima de lo permitido. (ejemplo: límite 55 MPH, ir a 57 MPH)'
+      ]
+    },
+    licencias: {
+      titulo: 'LICENCIAS',
+      contenido: [
+        '--> Licencia A',
+        '--> Licencia B',
+        '--> Licencia C',
+        '',
+        'Todas las licencias son bienvenidas a participar en cualquier categoría de la liga, y las licencias se otorgan en base a varios factores.',
+        '--> Conducción',
+        '--> Control del auto en pista',
+        '--> Constancia',
+        '--> Toma de decisiones en diversas circunstancias. EJ: ceder espacios, ceder el paso, aceptación de errores, conducta, etc...',
+        '',
+        '¿Cómo subir de licencia?',
+        'Si eres licencia C o B, en el calendario de la liga hay carreras llamadas (Fechas de licencia) marcadas en color verde. Al finalizar estas carreras, los administradores podrán decidir si subirte de licencia dependiendo de si cumpliste con los valores mencionados en el segundo punto.',
+        '',
+        '¿Cómo subir de licencia?',
+        'Si eres nuevo, iniciando con licencia C, y dependiendo de si cumples con los valores mencionados en el anterior punto, irás subiendo de licencia.',
+        'Si NO eres nuevo, para esta nueva temporada se te asignará una licencia basada en tu actuación en la temporada anterior.',
+        '',
+        'Límites por licencia',
+        'Cada licencia tiene un LÍMITE máximo de accidentes. Si llegas al límite de accidentes causados, serás llamado a estacionar tu auto y volverás a tu licencia anterior.',
+        '--> Licencia C: Se perdonarán 2 accidentes, solo si no se ha sobrepasado la mitad de carrera. En caso de ya haber sobrepasado la mitad de la carrera, solo se te perdonará 1 accidente.',
+        '--> Licencia B: Se te perdonaran 2 accidentes.',
+        '--> Licencia A: Se te perdonarán 3 accidentes.'
+      ]
+    },
+    chase: {
+      titulo: 'CHASE FOR THE GAMING',
+      contenido: [
+        '1. Los 10 primeros pilotos en la tabla por puntos avanzan.',
+        '2. El puesto 11 y 12 se definen por victoria igual vía puntos quien esta mejor acomodado.',
+        '3. Cada clasificado recibe 5.000 puntos base.',
+        '4. +12 puntos adicionales por cada victoria que logre en las 26 primeras carreras.',
+        '5. +1 punto adicional por ganar una etapa en las 26 primeras carreras.',
+        '6. Solo esos 12 pilotos podrán disputar el campeonato.',
+        '7. Se va continuar el sistema clásico de puntuación de carrera.',
+        '8. EL piloto con más puntos tras la final en Homestead-Miami Speedway será el campeón.'
+      ]
+    }
+  };
+
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">REGLAMENTO</h2>
-      <div className="bg-gray-800 rounded-lg p-4">
-        <p className="text-gray-300 mb-3 text-sm">
-          Reglamento oficial de NASCAR Gaming Series
-        </p>
-        <div className="text-gray-400 space-y-1 text-xs">
-          <p>• Normas de conducta en pista</p>
-          <p>• Sistema de puntuación</p>
-          <p>• Penalizaciones</p>
-          <p>• Licencias de conducción</p>
+    <div className="max-w-7xl mx-auto px-4">
+      <h1 className="text-3xl font-bold text-white mb-6">📋 REGLAMENTO NASCAR Gaming Series</h1>
+
+      {/* MENÚ DE SECCIONES */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {Object.keys(secciones).map(key => (
+          <button
+            key={key}
+            onClick={() => setSeccionActiva(key)}
+            className={`px-4 py-2 rounded font-semibold text-sm transition-colors ${
+              seccionActiva === key
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+            }`}
+          >
+            {secciones[key].titulo}
+          </button>
+        ))}
+      </div>
+
+      {/* CONTENIDO DE LA SECCIÓN ACTIVA */}
+      <div className="bg-gray-800 rounded-lg p-6 border-2 border-blue-500">
+        <h2 className="text-2xl font-bold text-white mb-4 border-b-2 border-blue-500 pb-2">
+          {secciones[seccionActiva].titulo}
+        </h2>
+        
+        <div className="space-y-3">
+          {secciones[seccionActiva].contenido.map((linea, idx) => (
+            <p
+              key={idx}
+              className={`${
+                linea === '' 
+                  ? 'h-2' 
+                  : linea.startsWith('ATENCIÓN') || linea.startsWith('IMPORTANTE') || linea.startsWith('¿Cómo')
+                    ? 'text-yellow-400 font-bold text-base'
+                    : linea.startsWith('-->')
+                      ? 'text-cyan-400 font-semibold'
+                      : linea.match(/^\d+\./)
+                        ? 'text-gray-200 text-sm leading-relaxed'
+                        : 'text-gray-300 text-sm italic'
+              }`}
+            >
+              {linea}
+            </p>
+          ))}
         </div>
+      </div>
+
+      {/* FOOTER */}
+      <div className="mt-6 text-center text-xs text-gray-500">
+        © 2026 NASCAR Gaming Series • Reglamento Oficial Temporada 2026
       </div>
     </div>
   );
