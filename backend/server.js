@@ -209,6 +209,74 @@ app.get('/api/campeonato/fabricantes', async (req, res) => {
   }
 });
 
+/* =========================
+   CAMPEONATO EQUIPOS
+========================= */
+app.get('/api/campeonato/equipos', async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      WITH MejorPilotoPorEquipo AS (
+        SELECT
+          RC.IdEventoCarrera,
+          P.Equipo,
+          RC.NumeroPiloto,
+          RC.Fin,
+          PU.Puntos,
+          RC.Estado,
+          ROW_NUMBER() OVER (
+            PARTITION BY RC.IdEventoCarrera, P.Equipo
+            ORDER BY RC.Fin ASC
+          ) AS RankingEquipo
+        FROM ResultadosCarrera RC
+        INNER JOIN Pilotos P ON RC.NumeroPiloto = P.Numero
+        INNER JOIN Puntos PU ON RC.Id_Puntos = PU.Posicion
+      ),
+      PuntosPorEquipo AS (
+        SELECT
+          Equipo,
+          SUM(
+            CASE
+              WHEN Estado = 'Accidente' THEN Puntos - 25
+              ELSE Puntos
+            END
+          ) AS PuntosTotales,
+          SUM(
+            CASE
+              WHEN Fin = 1 THEN 1
+              ELSE 0
+            END
+          ) AS Victorias
+        FROM MejorPilotoPorEquipo
+        WHERE RankingEquipo = 1
+        GROUP BY Equipo
+      ),
+      ClasificacionFinal AS (
+        SELECT
+          Equipo,
+          PuntosTotales,
+          Victorias,
+          MAX(PuntosTotales) OVER () - PuntosTotales AS Detras
+        FROM PuntosPorEquipo
+      )
+      SELECT
+        ROW_NUMBER() OVER (ORDER BY PuntosTotales DESC) AS pos,
+        Equipo AS team,
+        PuntosTotales AS points,
+        CASE
+          WHEN Detras = 0 THEN 'LIDER'
+          ELSE CONCAT('-', Detras)
+        END AS behind,
+        Victorias AS wins
+      FROM ClasificacionFinal
+      ORDER BY PuntosTotales DESC;
+    `);
+
+    res.json(rows);
+  } catch (error) {
+    console.error('Error campeonato equipos:', error);
+    res.status(500).json({ error: 'Error campeonato equipos' });
+  }
+});
 
 /* =========================
    EVENTOS
