@@ -215,112 +215,15 @@ function ResultadosView() {
 /* =======================
    PILOTOS VIEW
 ======================= */
-function PilotosView() {
-  const [pilotos, setPilotos] = useState([]);
-  const [loading, setLoading] = useState(true);
+import Pilotos from "./components/Pilotos";
 
-  useEffect(() => {
-    fetch('/api/pilotos')
-      .then(res => res.json())
-      .then(data => {
-        setPilotos(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center py-20">
-        <span className="text-gray-400 text-lg">Cargando pilotos...</span>
-      </div>
-    );
-  }
-
+function App() {
   return (
-    <div className="max-w-7xl mx-auto px-4">
-
-      {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h1 className="text-3xl font-bold text-white">
-          🏎 Pilotos NASCAR Gaming Series – Lista de Entradas – Tiempo Completo
-        </h1>
-
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="mt-3 sm:mt-0 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-4 py-2 rounded"
-        >
-          ← Regresar al inicio
-        </button>
-      </div>
-
-      {/* CONTENEDOR BLANCO DOMINANTE */}
-      <div className="bg-white rounded-lg shadow-xl overflow-hidden">
-
-        {/* SCROLL HORIZONTAL */}
-        <div className="overflow-x-auto">
-
-          <table className="min-w-full border-collapse text-sm text-gray-800">
-
-            {/* CABECERA */}
-            <thead className="bg-gray-100 border-b border-gray-300">
-              <tr>
-                <th className="px-4 py-3 text-left font-bold">NÚMERO</th>
-                <th className="px-4 py-3 text-left font-bold">NOMBRE</th>
-                <th className="px-4 py-3 text-left font-bold">APELLIDO</th>
-                <th className="px-4 py-3 text-left font-bold">FECHA NACIMIENTO</th>
-                <th className="px-4 py-3 text-left font-bold">LUGAR ORIGEN</th>
-                <th className="px-4 py-3 text-left font-bold">JEFE EQUIPO</th>
-                <th className="px-4 py-3 text-left font-bold">EQUIPO</th>
-                <th className="px-4 py-3 text-left font-bold">CATEGORÍA</th>
-                <th className="px-4 py-3 text-left font-bold">MARCA VEHÍCULO</th>
-              </tr>
-            </thead>
-
-            {/* CUERPO */}
-            <tbody>
-              {pilotos.map((p, index) => (
-                <tr
-                  key={index}
-                  className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
-                >
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white font-bold">
-                      {p.numero}
-                    </span>
-                  </td>
-
-                  <td className="px-4 py-3">{p.nombre}</td>
-                  <td className="px-4 py-3">{p.apellido}</td>
-
-                  <td className="px-4 py-3">
-                    {new Date(p.fechanacimiento).toLocaleDateString('es-ES')}
-                  </td>
-
-                  <td className="px-4 py-3">{p.lugarorigen}</td>
-                  <td className="px-4 py-3">{p.jefeequipo}</td>
-                  <td className="px-4 py-3">{p.equipo}</td>
-                  <td className="px-4 py-3">{p.categoria}</td>
-
-                  <td className="px-4 py-3 font-semibold">
-                    {p.marcavehiculo}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-
-          </table>
-        </div>
-      </div>
-
-      {/* FOOTER */}
-      <div className="mt-6 text-center text-xs text-gray-400">
-        © 2026 NASCAR Gaming Series • Datos oficiales de pilotos
-      </div>
-
-    </div>
+    <Pilotos />
   );
 }
+
+export default App;
 
 
 /* ======================================================
