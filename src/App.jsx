@@ -109,22 +109,6 @@ function HomeView() {
         <p className="text-gray-400 text-sm">Sponsored By Alpina</p>
       </div>
 
-      {/* Botones de navegación principales */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
-        <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg transition-colors">
-          🏁 PILOTOS
-        </button>
-        <button className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg transition-colors">
-          🏆 CAMPEONATO ▼
-        </button>
-        <button className="bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-lg transition-colors">
-          📅 CALENDARIO
-        </button>
-        <button className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-4 px-6 rounded-lg transition-colors">
-          📋 REGLAMENTO
-        </button>
-      </div>
-
       {/* Reloj actual */}
       <div className="bg-gray-800 border-2 border-red-600 rounded-lg p-6 mb-6">
         <div className="flex justify-between items-center">
@@ -217,11 +201,19 @@ function ResultadosView() {
   }, []);
 
   return (
-    <div>
-      <h2>RESULTADOS</h2>
-      {data.map(r => (
-        <div key={r.id}>{r.descripcion}</div>
-      ))}
+    <div className="max-w-6xl mx-auto">
+      <h2 className="text-3xl font-bold mb-6">RESULTADOS</h2>
+      <div className="bg-gray-800 rounded-lg p-6">
+        {data.length === 0 ? (
+          <p className="text-gray-400">No hay resultados disponibles</p>
+        ) : (
+          data.map(r => (
+            <div key={r.id} className="border-b border-gray-700 py-3">
+              {r.descripcion}
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
@@ -240,11 +232,139 @@ function PilotosView() {
   }, []);
 
   return (
-    <div>
-      <h2>PILOTOS</h2>
-      {pilotos.map(p => (
-        <div key={p.id}>{p.nombre}</div>
-      ))}
+    <div className="max-w-6xl mx-auto">
+      <h2 className="text-3xl font-bold mb-6">PILOTOS</h2>
+      <div className="bg-gray-800 rounded-lg p-6">
+        {pilotos.length === 0 ? (
+          <p className="text-gray-400">No hay pilotos disponibles</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {pilotos.map(p => (
+              <div key={p.id} className="bg-gray-700 rounded-lg p-4">
+                <div className="text-xl font-bold">{p.nombre}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* =======================
+   CAMPEONATO VIEW
+======================= */
+function CampeonatoView({ subView, setSubView }) {
+  return (
+    <div className="max-w-6xl mx-auto">
+      {/* Submenu de Campeonato */}
+      <div className="mb-6">
+        <button
+          onClick={() => setSubView('pilotos')}
+          className={`block w-full text-left px-6 py-4 mb-2 rounded-lg font-bold transition-colors ${
+            subView === 'pilotos'
+              ? 'bg-gray-700 text-white border-l-4 border-blue-500'
+              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+          }`}
+        >
+          🏁 Campeonato de Pilotos
+        </button>
+        <button
+          onClick={() => setSubView('equipos')}
+          className={`block w-full text-left px-6 py-4 mb-2 rounded-lg font-bold transition-colors ${
+            subView === 'equipos'
+              ? 'bg-gray-700 text-white border-l-4 border-blue-500'
+              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+          }`}
+        >
+          🏁 Campeonato de Equipos
+        </button>
+        <button
+          onClick={() => setSubView('fabricantes')}
+          className={`block w-full text-left px-6 py-4 rounded-lg font-bold transition-colors ${
+            subView === 'fabricantes'
+              ? 'bg-gray-700 text-white border-l-4 border-blue-500'
+              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+          }`}
+        >
+          🏭 Campeonato de Fabricantes
+        </button>
+      </div>
+
+      {/* Contenido según subView */}
+      <div className="bg-gray-800 rounded-lg p-6">
+        {subView === 'pilotos' && (
+          <div>
+            <h2 className="text-3xl font-bold mb-4">Campeonato de Pilotos</h2>
+            <p className="text-gray-400">Tabla de clasificación de pilotos...</p>
+          </div>
+        )}
+        {subView === 'equipos' && (
+          <div>
+            <h2 className="text-3xl font-bold mb-4">Campeonato de Equipos</h2>
+            <p className="text-gray-400">Tabla de clasificación de equipos...</p>
+          </div>
+        )}
+        {subView === 'fabricantes' && (
+          <div>
+            <h2 className="text-3xl font-bold mb-4">Campeonato de Fabricantes</h2>
+            <p className="text-gray-400">Tabla de clasificación de fabricantes...</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* =======================
+   CALENDARIO VIEW
+======================= */
+function CalendarioView() {
+  const [eventos, setEventos] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/calendario')
+      .then(res => res.json())
+      .then(setEventos)
+      .catch(() => setEventos([]));
+  }, []);
+
+  return (
+    <div className="max-w-6xl mx-auto">
+      <h2 className="text-3xl font-bold mb-6">CALENDARIO</h2>
+      <div className="bg-gray-800 rounded-lg p-6">
+        {eventos.length === 0 ? (
+          <p className="text-gray-400">No hay eventos programados</p>
+        ) : (
+          eventos.map(e => (
+            <div key={e.id} className="border-b border-gray-700 py-3">
+              {e.nombre} - {e.fecha}
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* =======================
+   REGLAMENTO VIEW
+======================= */
+function ReglamentoView() {
+  return (
+    <div className="max-w-6xl mx-auto">
+      <h2 className="text-3xl font-bold mb-6">REGLAMENTO</h2>
+      <div className="bg-gray-800 rounded-lg p-6">
+        <p className="text-gray-300 mb-4">
+          Reglamento oficial de NASCAR Gaming Series
+        </p>
+        <div className="text-gray-400 space-y-2">
+          <p>• Normas de conducta en pista</p>
+          <p>• Sistema de puntuación</p>
+          <p>• Penalizaciones</p>
+          <p>• Licencias de conducción</p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -254,6 +374,8 @@ function PilotosView() {
 ======================= */
 export default function App() {
   const [currentView, setCurrentView] = useState('home');
+  const [campeonatoSubView, setCampeonatoSubView] = useState('pilotos');
+  const [campeonatoOpen, setCampeonatoOpen] = useState(false);
 
   const renderView = () => {
     switch (currentView) {
@@ -263,46 +385,130 @@ export default function App() {
         return <ResultadosView />;
       case 'pilotos':
         return <PilotosView />;
+      case 'campeonato':
+        return <CampeonatoView subView={campeonatoSubView} setSubView={setCampeonatoSubView} />;
+      case 'calendario':
+        return <CalendarioView />;
+      case 'reglamento':
+        return <ReglamentoView />;
       default:
         return <HomeView />;
     }
   };
 
   return (
-    <div className="bg-gray-950 text-white min-h-screen p-8">
-      <nav className="mb-8 flex gap-4 max-w-6xl mx-auto">
-        <button 
-          onClick={() => setCurrentView('home')}
-          className={`px-6 py-2 rounded-lg font-bold transition-colors ${
-            currentView === 'home' 
-              ? 'bg-gray-700 text-white' 
-              : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
-          }`}
-        >
-          HOME
-        </button>
-        <button 
-          onClick={() => setCurrentView('resultados')}
-          className={`px-6 py-2 rounded-lg font-bold transition-colors ${
-            currentView === 'resultados' 
-              ? 'bg-gray-700 text-white' 
-              : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
-          }`}
-        >
-          RESULTADOS
-        </button>
-        <button 
-          onClick={() => setCurrentView('pilotos')}
-          className={`px-6 py-2 rounded-lg font-bold transition-colors ${
-            currentView === 'pilotos' 
-              ? 'bg-gray-700 text-white' 
-              : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
-          }`}
-        >
-          PILOTOS
-        </button>
+    <div className="bg-black text-white min-h-screen">
+      {/* NAVBAR SUPERIOR */}
+      <nav className="bg-gray-900 border-b border-gray-800">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-center gap-1">
+            <button 
+              onClick={() => setCurrentView('home')}
+              className={`px-8 py-4 font-bold text-sm tracking-wider transition-colors ${
+                currentView === 'home' 
+                  ? 'bg-gray-800 text-white border-b-2 border-blue-500' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+              }`}
+            >
+              HOME
+            </button>
+            <button 
+              onClick={() => setCurrentView('resultados')}
+              className={`px-8 py-4 font-bold text-sm tracking-wider transition-colors ${
+                currentView === 'resultados' 
+                  ? 'bg-gray-800 text-white border-b-2 border-blue-500' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+              }`}
+            >
+              RESULTADOS
+            </button>
+            <button 
+              onClick={() => setCurrentView('pilotos')}
+              className={`px-8 py-4 font-bold text-sm tracking-wider transition-colors ${
+                currentView === 'pilotos' 
+                  ? 'bg-gray-800 text-white border-b-2 border-blue-500' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+              }`}
+            >
+              PILOTOS
+            </button>
+          </div>
+        </div>
       </nav>
-      {renderView()}
+
+      {/* BOTONES DE ACCIÓN PRINCIPALES */}
+      <div className="max-w-6xl mx-auto px-4 py-6">
+        <div className="grid grid-cols-4 gap-4 mb-6">
+          <button 
+            onClick={() => setCurrentView('pilotos')}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg"
+          >
+            🏁 PILOTOS
+          </button>
+          
+          <div className="relative">
+            <button 
+              onClick={() => {
+                setCurrentView('campeonato');
+                setCampeonatoOpen(!campeonatoOpen);
+              }}
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg"
+            >
+              🏆 CAMPEONATO ▼
+            </button>
+            
+            {campeonatoOpen && currentView === 'campeonato' && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-gray-800 rounded-lg shadow-xl border border-gray-700 overflow-hidden z-10">
+                <button
+                  onClick={() => {
+                    setCampeonatoSubView('pilotos');
+                    setCampeonatoOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-3 text-white hover:bg-gray-700 transition-colors border-b border-gray-700"
+                >
+                  🏁 Campeonato de Pilotos
+                </button>
+                <button
+                  onClick={() => {
+                    setCampeonatoSubView('equipos');
+                    setCampeonatoOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-3 text-white hover:bg-gray-700 transition-colors border-b border-gray-700"
+                >
+                  🏁 Campeonato de Equipos
+                </button>
+                <button
+                  onClick={() => {
+                    setCampeonatoSubView('fabricantes');
+                    setCampeonatoOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-3 text-white hover:bg-gray-700 transition-colors"
+                >
+                  🏭 Campeonato de Fabricantes
+                </button>
+              </div>
+            )}
+          </div>
+          
+          <button 
+            onClick={() => setCurrentView('calendario')}
+            className="bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg"
+          >
+            📅 CALENDARIO
+          </button>
+          <button 
+            onClick={() => setCurrentView('reglamento')}
+            className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg"
+          >
+            📋 REGLAMENTO
+          </button>
+        </div>
+      </div>
+
+      {/* CONTENIDO PRINCIPAL */}
+      <div className="px-4 pb-8">
+        {renderView()}
+      </div>
     </div>
   );
 }
