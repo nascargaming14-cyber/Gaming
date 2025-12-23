@@ -220,97 +220,95 @@ function PilotosView() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
     fetch('/api/pilotos')
       .then(res => res.json())
       .then(data => {
         setPilotos(data);
         setLoading(false);
       })
-      .catch(() => {
-        setPilotos([]);
-        setLoading(false);
-      });
+      .catch(() => setLoading(false));
   }, []);
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '-';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('es-MX', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  };
 
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <div className="text-gray-400">Cargando pilotos...</div>
+      <div className="flex justify-center items-center py-24">
+        <span className="text-gray-400 text-lg">Cargando pilotos...</span>
       </div>
     );
   }
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">PILOTOS DE LA NASCAR GAMING SERIES</h2>
-      
-      <div className="bg-gray-800 rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-gray-900 text-white uppercase text-xs">
-              <tr>
-                <th className="px-4 py-3 font-bold">NÚMERO</th>
-                <th className="px-4 py-3 font-bold">NOMBRE</th>
-                <th className="px-4 py-3 font-bold">APELLIDO</th>
-                <th className="px-4 py-3 font-bold">FECHA NACIMIENTO</th>
-                <th className="px-4 py-3 font-bold">LUGAR ORIGEN</th>
-                <th className="px-4 py-3 font-bold">JEFE EQUIPO</th>
-                <th className="px-4 py-3 font-bold">EQUIPO</th>
-                <th className="px-4 py-3 font-bold">CATEGORÍA</th>
-                <th className="px-4 py-3 font-bold">MARCA VEHÍCULO</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pilotos.length === 0 ? (
-                <tr>
-                  <td colSpan="9" className="px-4 py-8 text-center text-gray-400">
-                    No hay pilotos disponibles
-                  </td>
-                </tr>
-              ) : (
-                pilotos.map((p, idx) => (
-                  <tr 
-                    key={p.idpiloto || idx} 
-                    className="border-b border-gray-700 hover:bg-gray-750 transition-colors"
-                  >
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-xs">
-                        {p.numero}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-white">{p.nombre}</td>
-                    <td className="px-4 py-3 text-white">{p.apellido}</td>
-                    <td className="px-4 py-3 text-gray-300">{formatDate(p.fechanacimiento)}</td>
-                    <td className="px-4 py-3 text-gray-300">{p.lugarorigen}</td>
-                    <td className="px-4 py-3 text-gray-300">{p.jefeequipo}</td>
-                    <td className="px-4 py-3 text-gray-300">{p.equipo}</td>
-                    <td className="px-4 py-3 text-gray-300">{p.categoria}</td>
-                    <td className="px-4 py-3 text-gray-300">{p.marcavehiculo}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+    <div className="max-w-7xl mx-auto px-4">
+      {/* HERO */}
+      <div className="mb-10 text-center">
+        <h1 className="text-4xl font-extrabold tracking-wide mb-2">
+          PILOTOS NASCAR GAMING SERIES
+        </h1>
+        <p className="text-gray-400 text-sm">
+          Lista oficial de pilotos registrados en la temporada actual
+        </p>
       </div>
-      
-      <div className="mt-4 text-gray-400 text-xs">
-        Total de pilotos: <span className="font-bold text-white">{pilotos.length}</span>
+
+      {/* GRID DE PILOTOS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {pilotos.map((p, idx) => (
+          <div
+            key={idx}
+            className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-lg border border-gray-700 hover:border-blue-500 transition-all"
+          >
+            <div className="p-5">
+              {/* NUMERO */}
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-3xl font-extrabold text-blue-400">
+                  #{p.numero}
+                </span>
+                <span className="text-xs bg-gray-700 px-3 py-1 rounded-full text-gray-300">
+                  {p.marcavehiculo}
+                </span>
+              </div>
+
+              {/* NOMBRE */}
+              <h2 className="text-xl font-bold text-white leading-tight">
+                {p.nombre} {p.apellido}
+              </h2>
+
+              <p className="text-sm text-gray-400 mt-1">
+                {p.lugarorigen}
+              </p>
+
+              {/* INFO */}
+              <div className="mt-4 space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Equipo</span>
+                  <span className="text-white">{p.equipo}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Jefe</span>
+                  <span className="text-white">{p.jefeequipo}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Categoría</span>
+                  <span className="text-white">{p.categoria}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* FOOTER */}
+      <div className="mt-16 border-t border-gray-700 pt-6 text-center text-xs text-gray-500">
+        <p>
+          NASCAR® Gaming Series • Datos oficiales de pilotos • Temporada actual
+        </p>
+        <p className="mt-1">
+          © 2026 NASCAR Gaming Digital Media
+        </p>
       </div>
     </div>
   );
 }
+
 
 /* =======================
    CAMPEONATO VIEW
