@@ -239,10 +239,11 @@ function PilotosView() {
 
   return (
     <div className="max-w-7xl mx-auto px-4">
+
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-white">
-          🏎 Pilotos NASCAR Gaming Series — Lista de Entradas — Tiempo Completo
+        <h1 className="text-3xl font-bold text-white">
+          🏎 Pilotos NASCAR Gaming Series – Lista de Entradas – Tiempo Completo
         </h1>
 
         <button
@@ -253,11 +254,16 @@ function PilotosView() {
         </button>
       </div>
 
-      {/* CONTENEDOR TABLA */}
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+      {/* CONTENEDOR BLANCO DOMINANTE */}
+      <div className="bg-white rounded-lg shadow-xl overflow-hidden">
+
+        {/* SCROLL HORIZONTAL */}
         <div className="overflow-x-auto">
-          <table className="min-w-full text-sm text-gray-800">
-            <thead className="bg-gray-100 border-b">
+
+          <table className="min-w-full border-collapse text-sm text-gray-800">
+
+            {/* CABECERA */}
+            <thead className="bg-gray-100 border-b border-gray-300">
               <tr>
                 <th className="px-4 py-3 text-left font-bold">NÚMERO</th>
                 <th className="px-4 py-3 text-left font-bold">NOMBRE</th>
@@ -271,30 +277,38 @@ function PilotosView() {
               </tr>
             </thead>
 
+            {/* CUERPO */}
             <tbody>
-              {pilotos.map((p, idx) => (
+              {pilotos.map((p, index) => (
                 <tr
-                  key={idx}
-                  className="border-b hover:bg-gray-50 transition"
+                  key={index}
+                  className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
                 >
                   <td className="px-4 py-3">
                     <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white font-bold">
                       {p.numero}
                     </span>
                   </td>
+
                   <td className="px-4 py-3">{p.nombre}</td>
                   <td className="px-4 py-3">{p.apellido}</td>
+
                   <td className="px-4 py-3">
                     {new Date(p.fechanacimiento).toLocaleDateString('es-ES')}
                   </td>
+
                   <td className="px-4 py-3">{p.lugarorigen}</td>
                   <td className="px-4 py-3">{p.jefeequipo}</td>
                   <td className="px-4 py-3">{p.equipo}</td>
                   <td className="px-4 py-3">{p.categoria}</td>
-                  <td className="px-4 py-3 font-semibold">{p.marcavehiculo}</td>
+
+                  <td className="px-4 py-3 font-semibold">
+                    {p.marcavehiculo}
+                  </td>
                 </tr>
               ))}
             </tbody>
+
           </table>
         </div>
       </div>
@@ -303,9 +317,11 @@ function PilotosView() {
       <div className="mt-6 text-center text-xs text-gray-400">
         © 2026 NASCAR Gaming Series • Datos oficiales de pilotos
       </div>
+
     </div>
   );
 }
+
 
 /* ======================================================
    TABLA CAMPEONATO PILOTOS
