@@ -321,7 +321,10 @@ function CampeonatoPilotosTable() {
         setData(rows);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(err => {
+        console.error('Error:', err);
+        setLoading(false);
+      });
   }, []);
 
   if (loading) {
