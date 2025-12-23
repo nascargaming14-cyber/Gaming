@@ -181,86 +181,6 @@ function HomeView() {
   );
 }
 
-/* ================================
-   CAMPEONATO VIEW (PRINCIPAL)
-================================ */
-export default function CampeonatoView() {
-  const [subView, setSubView] = useState('pilotos');
-
-  return (
-    <div className="max-w-7xl mx-auto px-4">
-
-      {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h1 className="text-3xl font-bold text-white flex items-center gap-2">
-          📊 Clasificación NASCAR Gaming Series
-        </h1>
-
-        <button
-          onClick={() => window.location.href = '/'}
-          className="mt-3 sm:mt-0 bg-gray-700 hover:bg-gray-600 text-white text-sm font-semibold px-4 py-2 rounded"
-        >
-          ← Regresar al inicio
-        </button>
-      </div>
-
-      {/* SUBMENU */}
-      <div className="flex gap-2 mb-6">
-        <button
-          onClick={() => setSubView('pilotos')}
-          className={`px-4 py-2 rounded font-semibold text-sm ${
-            subView === 'pilotos'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-          }`}
-        >
-          Pilotos
-        </button>
-
-        <button
-          onClick={() => setSubView('equipos')}
-          className={`px-4 py-2 rounded font-semibold text-sm ${
-            subView === 'equipos'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-          }`}
-        >
-          Equipos
-        </button>
-
-        <button
-          onClick={() => setSubView('fabricantes')}
-          className={`px-4 py-2 rounded font-semibold text-sm ${
-            subView === 'fabricantes'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-          }`}
-        >
-          Fabricantes
-        </button>
-      </div>
-
-      {/* CONTENIDO */}
-      {subView === 'pilotos' && <CampeonatoPilotosTable />}
-
-      {subView === 'equipos' && (
-        <div className="text-gray-400 text-sm">
-          Clasificación de equipos (pendiente de implementación).
-        </div>
-      )}
-
-      {subView === 'fabricantes' && (
-        <div className="text-gray-400 text-sm">
-          Clasificación de fabricantes (pendiente de implementación).
-        </div>
-      )}
-    </div>
-  );
-}
-
-
-
-
 /* =======================
    RESULTADOS VIEW
 ======================= */
@@ -322,7 +242,7 @@ function PilotosView() {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-white">
-          🏁 Pilotos NASCAR Gaming Series – Lista de Entradas – Tiempo Completo
+          🏎 Pilotos NASCAR Gaming Series — Lista de Entradas — Tiempo Completo
         </h1>
 
         <button
@@ -387,11 +307,6 @@ function PilotosView() {
   );
 }
 
-
-
-/* =======================
-   CAMPEONATO VIEW
-======================= */
 /* ======================================================
    TABLA CAMPEONATO PILOTOS
 ====================================================== */
@@ -497,6 +412,83 @@ function CampeonatoPilotosTable() {
   );
 }
 
+/* ================================
+   CAMPEONATO VIEW (PRINCIPAL)
+================================ */
+function CampeonatoView() {
+  const [subView, setSubView] = useState('pilotos');
+
+  return (
+    <div className="max-w-7xl mx-auto px-4">
+
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+        <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+          📊 Clasificación NASCAR Gaming Series
+        </h1>
+
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-3 sm:mt-0 bg-gray-700 hover:bg-gray-600 text-white text-sm font-semibold px-4 py-2 rounded"
+        >
+          ← Regresar al inicio
+        </button>
+      </div>
+
+      {/* SUBMENU */}
+      <div className="flex gap-2 mb-6">
+        <button
+          onClick={() => setSubView('pilotos')}
+          className={`px-4 py-2 rounded font-semibold text-sm ${
+            subView === 'pilotos'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+          }`}
+        >
+          Pilotos
+        </button>
+
+        <button
+          onClick={() => setSubView('equipos')}
+          className={`px-4 py-2 rounded font-semibold text-sm ${
+            subView === 'equipos'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+          }`}
+        >
+          Equipos
+        </button>
+
+        <button
+          onClick={() => setSubView('fabricantes')}
+          className={`px-4 py-2 rounded font-semibold text-sm ${
+            subView === 'fabricantes'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+          }`}
+        >
+          Fabricantes
+        </button>
+      </div>
+
+      {/* CONTENIDO */}
+      {subView === 'pilotos' && <CampeonatoPilotosTable />}
+
+      {subView === 'equipos' && (
+        <div className="text-gray-400 text-sm">
+          Clasificación de equipos (pendiente de implementación).
+        </div>
+      )}
+
+      {subView === 'fabricantes' && (
+        <div className="text-gray-400 text-sm">
+          Clasificación de fabricantes (pendiente de implementación).
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* =======================
    CALENDARIO VIEW
 ======================= */
@@ -551,7 +543,7 @@ function ReglamentoView() {
 }
 
 /* =======================
-   APP
+   APP PRINCIPAL
 ======================= */
 export default function App() {
   const [currentView, setCurrentView] = useState('home');
@@ -567,7 +559,7 @@ export default function App() {
       case 'pilotos':
         return <PilotosView />;
       case 'campeonato':
-        return <CampeonatoView subView={campeonatoSubView} setSubView={setCampeonatoSubView} />;
+        return <CampeonatoView />;
       case 'calendario':
         return <CalendarioView />;
       case 'reglamento':
@@ -622,7 +614,7 @@ export default function App() {
             onClick={() => setCurrentView('pilotos')}
             className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded text-xs transition-colors"
           >
-            🏁 PILOTOS
+            🏎 PILOTOS
           </button>
           
           <div className="relative">
@@ -645,7 +637,7 @@ export default function App() {
                   }}
                   className="block w-full text-left px-3 py-2 text-white hover:bg-gray-700 transition-colors border-b border-gray-700 text-xs"
                 >
-                  🏁 Campeonato de Pilotos
+                  🏎 Campeonato de Pilotos
                 </button>
                 <button
                   onClick={() => {
@@ -654,7 +646,7 @@ export default function App() {
                   }}
                   className="block w-full text-left px-3 py-2 text-white hover:bg-gray-700 transition-colors border-b border-gray-700 text-xs"
                 >
-                  🏁 Campeonato de Equipos
+                  👥 Campeonato de Equipos
                 </button>
                 <button
                   onClick={() => {
